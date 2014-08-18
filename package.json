@@ -14,8 +14,6 @@
     "config": "0.4.x",
     "winston": "0.7.x",
     "async": "0.9.x",
-    "mongodb": "1.4.x",
-    "mongoose": "3.8.x",
     "randoDB": "git+https://github.com/RandoApp/Rando-db.git"
   },
   "devDependencies": {
