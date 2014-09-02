@@ -11,6 +11,6 @@ module.exports = {
         if (randos.length > 0) {
             chooser = sort(randos)[0];
         }
-        callback(null, chooser);
+        callback(null, chooser, randos);
     }
 };
