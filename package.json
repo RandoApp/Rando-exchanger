@@ -10,10 +10,10 @@
     "url": "https://github.com/RandoApp/Rando-exchanger.git"
   },
   "dependencies": {
-    "js-yaml": "3.0.x",
-    "config": "0.4.x",
-    "winston": "0.7.x",
-    "async": "0.9.x",
+    "js-yaml": "3.x",
+    "config": "1.x",
+    "winston": "0.x",
+    "async": "0.x",
     "randoDB": "git+https://github.com/RandoApp/Rando-db.git"
   },
   "devDependencies": {
