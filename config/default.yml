@@ -1,2 +1,4 @@
+exch:
+    fetchRandosNumber: 100
 db:
     url: mongodb://localhost/rando
