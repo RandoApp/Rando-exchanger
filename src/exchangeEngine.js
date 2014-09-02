@@ -2,9 +2,9 @@ var db = require("randoDB");
 var config = require("config");
 var async = require("async");
 var exchangeModel = require("./model/exchangeModel");
+var chooser = require("./engine/chooser");
 
 var metrics = [];
-var chooser = {};
 
 function use () {
     for (var i = 0; i < arguments.length; i++) {
@@ -13,30 +13,17 @@ function use () {
 }
 
 function run () {
-    exchangeModel.fetchRandos(function (err, randos) {
-        console.log(randos[0].user.email);
-    });
-
-    /*
     async.waterfall([
         exchageModel.fetchRandos,
-        fetchRandos,
-        findChooser,
+        chooser.findChooser,
         calculateMetrics,
         chooseGift,
         giveGift
     ], function (err) {
         console.error("Error in Rando-echanger.main waterfall: " + err);
     });
-    */
 }
 
-function findChooser (randos, callback) {
-    randos.sort(function (rando1, rando2) {
-        return rando1.creation - rando2.creation;
-    });
-    callback(randos[0]);
-}
 
 function calculateMetrics(randos, chooser, callback) {
     for (var i = 0; i < randos.length; i++) {

@@ -1,11 +1,11 @@
 var config = require("config");
 var db = require("randoDB");
-var exchanger = require("./src/exchanger");
+var exchange = require("./src/exchangeEngine");
 
 db.connect(config.db.url);
 
-exchanger.use(
+exchange.use(
     require("./src/metric/randoOwner")
 );
 
-exchanger.run();
+exchange.run();
