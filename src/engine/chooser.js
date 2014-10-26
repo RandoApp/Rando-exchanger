@@ -6,11 +6,11 @@ function sort (randos) {
 }
 
 module.exports = {
-    findChooser: function(randos, callback) {
+    findChooser: function(choosers, gifts, callback) {
         var chooser = null;
-        if (randos.length > 0) {
-            chooser = sort(randos)[0];
+        if (choosers.length > 0) {
+            chooser = sort(choosers)[0];
         }
-        callback(null, chooser, randos);
+        callback(null, chooser, gifts);
     }
 };

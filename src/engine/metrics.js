@@ -20,5 +20,8 @@ module.exports = {
         }, function (err) {
             callback(err, chooser, randos);
         });
+    },
+    isGiftOk: function (rando) {
+        return (rando.mark >= config.mark.min);
     }
 };

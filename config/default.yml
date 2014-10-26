@@ -1,4 +1,6 @@
 exch:
     fetchRandosNumber: 100
+mark:
+    min
 db:
     url: mongodb://localhost/rando
