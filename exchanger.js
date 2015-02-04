@@ -1,9 +1,14 @@
 var db = require("randoDB");
 var config = require("config");
 var async = require("async");
+var metrics = require("./src/metrics");
 
-function pair (callback) {
-    db.rando.getAll(function (err, randos) {
+var lonelyBucket = [];
+var halfPairBucket = [];
+var fullPairBucker = [];
+
+function fetchAllRandos (callback) {
+    db.rando.getFirstN(config.exch.fetchRandosNumber, function (err, randos) {
         if (err) {
             console.warn("Exchanger.pair: Can't get all randos: ", err);
             callback(err);
@@ -17,62 +22,79 @@ function pair (callback) {
 
         console.info("Exchanger.pair: Get " + randos.length + " randos");
 
-        var randosWithStatus = wrapRandosWithStatusSync(randos);
-        async.eachSeries(randosWithStatus, function (randoWithStatus, done) {
-            var randoToPair = findRandoForUserSync(randoWithStatus, randosWithStatus);
-            if (randoToPair) {
-                connectRandos(randoWithStatus.rando, randoToPair, function () {
-                    done();
-                });
-            } else {
-                done();
-            }
+        async.eachLimit(randos, 30, function (rando, callback) {
+            attachUserToRando(rando, function (err) {
+                callback(err);
+            })
         }, function (err) {
-            callback(err);
+            done(err, randos);
         });
     });
 }
 
-function wrapRandosWithStatusSync (randos) {
-    var randosWithStatus = [];
-    for (var i = 0; i < randos.length; i++) {
-        randosWithStatus.push({
-            status: "pairing",
-            rando: randos[i]
-        });
-    }
-    return randosWithStatus;
-}
-
-function findRandoForUserSync (randoWithStatus, randosWithStatus) {
-    var PAIRED_STATUS = "paired";
-    if (randoWithStatus.status != PAIRED_STATUS) {
-        for (var i = 0; i < randosWithStatus.length; i++) {
-            if (randoWithStatus.rando.email != randosWithStatus[i].rando.email && randosWithStatus[i].status != PAIRED_STATUS) {
-                randoWithStatus.status = PAIRED_STATUS;
-                randosWithStatus[i].status = PAIRED_STATUS;
-                return randosWithStatus[i].rando;
-            }
-        }
-    }
-    return null;
-}
-
-function connectRandos (rando1, rando2, callback) {
-    console.info("Exchanger.connectRandos: Pair:", rando1.email, "[randoId: ", rando1.randoId,"]   <-->   ", rando2.email, "[randoId: ", rando2.randoId,"]");
-    async.parallel({
-        rando2ToUser1: function (done) {
-            randoToUser(rando1.email, rando1.randoId, rando2, done);
-        },
-        rando1ToUser2: function (done) {
-            randoToUser(rando2.email, rando2.randoId, rando1, done);
-        },
-    }, function (err) {
-        if (err) {
-            console.warn("Exchanger.connectRandos: Can't connect randos for users ", rando1.email, " and ", rando2.email, ", because: ", err);
-        }
+function attachUserToRando (rando, callback) {
+    db.user.getByEmail(rando.email, function (err, user) {
+        rando.user = user;
         callback(err);
     });
+}
+
+
+
+function exchangeRandos(randos) {
+    fillBaskets(randos);
+    do {
+        var chooser = selectChooser(lonelyBucket);
+        applyMetrics(chooser, randos, metrics);
+        var bestRando = selectBestRando(randos);
+        randoToUser()
+
+    } while (lonelyBucket.length >= 2);
+}
+
+
+
+function fillBaskets (randos) {
+    for (var i = 0; i < randos.length; i++) {
+        if (randos[i].user.in.length == randos[j].user.out.length) {
+            fullPairBucker.push(randos[i]);
+            continue;
+        }
+
+        for (var j = 0; j < randos.length; j++) {
+            if (i == j) continue;
+
+            if (hasUserRando(randos[i], randos[j].user)) {
+                halfPairBucket.push(randos[i]);
+            } else {
+                lonelyBucket.push(randos[i]);
+            }
+        }
+    }
+}
+
+function hasUserRando (rando, user) {
+    for (var i = 0; i < user.in.length; i++) {
+        if (user.in[i].randoId == rando.randoId) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function selectChooser (randos) {
+    var oldRando = randos[0];
+    for (var i = 1; i < randos.length; i++) {
+        if (oldRando.creation > randos[i]) {
+            oldRando = randos[i];
+        }
+    }
+    return oldRando;
+}
+
+function makeMetrics(randos) {
+
+
 }
 
 function randoToUser (email, userRandoId, rando, callback) {
@@ -121,10 +143,15 @@ function updateModels (user, rando, callback) {
 function main () {
     console.log("Exchanger start: " + new Date());
     db.connect(config.db.url);
-    pair(function (err) {
+    fetchAllRandos(function (err, randos) {
+        if (!err && randos && randos.length > 1) {
+            exchangeRandos(randos);
+        }
+
         db.disconnect();
         console.log("Exchanger finish: " + new Date());
     });
 }
 
 main();
+    
