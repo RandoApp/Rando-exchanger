@@ -2,7 +2,8 @@ var fs = require("fs");
 
 module.exports = {
 	metrics: [
-		require("./metrics/owner")
+		require("./metrics/owner"),
+		require("./metrics/hasStranger"),
 	],
 	add: function (metric) {
 		this.metrics.push(metric);

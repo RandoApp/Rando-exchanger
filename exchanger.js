@@ -5,7 +5,6 @@ var metrics = require("./src/metrics");
 
 var lonelyBucket = [];
 var halfPairBucket = [];
-var fullPairBucker = [];
 
 function fetchAllRandos (callback) {
     db.rando.getFirstN(config.exch.fetchRandosNumber, function (err, randos) {
@@ -27,7 +26,7 @@ function fetchAllRandos (callback) {
                 callback(err);
             })
         }, function (err) {
-            done(err, randos);
+            callback(err, randos);
         });
     });
 }
@@ -41,26 +40,27 @@ function attachUserToRando (rando, callback) {
 
 
 
-function exchangeRandos(randos) {
-    fillBaskets(randos);
-    do {
+function exchangeRandos (randos) {
+    fillBackets(randos);
+    // do {
         var chooser = selectChooser(lonelyBucket);
-        applyMetrics(chooser, randos, metrics);
-        var bestRando = selectBestRando(randos);
-        randoToUser()
+        console.log("Chooser: " + chooser.randoId);
 
-    } while (lonelyBucket.length >= 2);
+        metrics.calculate(chooser, randos);
+        var bestRando = selectBestRando(randos);
+
+        console.log("Best rando: " + bestRando.randoId);
+        
+        if (bestRando.mark < 0) return ;//continue;
+
+        randoToUser(bestRando, chooser.user);
+    // } while (lonelyBucket.length >= 2);
 }
 
 
 
-function fillBaskets (randos) {
+function fillBackets (randos) {
     for (var i = 0; i < randos.length; i++) {
-        if (randos[i].user.in.length == randos[j].user.out.length) {
-            fullPairBucker.push(randos[i]);
-            continue;
-        }
-
         for (var j = 0; j < randos.length; j++) {
             if (i == j) continue;
 
@@ -71,6 +71,19 @@ function fillBaskets (randos) {
             }
         }
     }
+
+    var lonelyBucketStr = "";
+    for (var i = 0; i < lonelyBucket.length; i++) {
+        lonelyBucketStr = ", " + lonelyBucket[i].randoId;
+    }
+
+    var halfPairBucketStr = "";
+    for (var i = 0; i < halfPairBucket.length; i++) {
+        halfPairBucketStr = ", " + halfPairBucket[i].randoId;
+    }
+    
+    console.log("lonelyBucket: [" + lonelyBucketStr + "]");
+    console.log("halfPairBucket: [" + halfPairBucketStr + "]");
 }
 
 function hasUserRando (rando, user) {
@@ -92,51 +105,55 @@ function selectChooser (randos) {
     return oldRando;
 }
 
-function makeMetrics(randos) {
-
-
+function selectBestRando(randos) {
+    var bestRando = randos[0];
+    for (var i = 1; i < randos.length; i++) {
+        if (bestRando.mark < randos[i]) {
+            bestRando = randos[i];
+        }
+    }
+    return bestRando;
 }
 
-function randoToUser (email, userRandoId, rando, callback) {
-    db.user.getByEmail(email, function (err, user) {
+function randoToUser (chooser, rando) {
+    for (var i = 0; i < lonelyBucket.length; i++) {
+        if (lonelyBucket[i].randoId == chooser.randoId) {
+            lonelyBucket.splice(i, 1);
+            halfPairBucket.push(chooser);
+        }
+    }
+
+    for (var i = 0; halfPairBucket.length; i++) {
+        if (halfPairBucket[i].randoId == randoId) {
+            halfPairBucket.splice(i, 1);
+        }
+    }
+
+    db.user.getByEmail(chooser.email, function (err, user) {
         if (err) {
-            console.warn("Exchanger.randoToUser: Data base error when getByEmail: ", email);
+            console.warn("Exchanger.randoToUser: Data base error when getByEmail: ", chooser.email);
             callback(err);
             return;
         }
 
         if (!user) {
-            console.warn("Exchanger.randoToUser: User not found: ", email);
+            console.warn("Exchanger.randoToUser: User not found: ", chooser.email);
             callback(new Error("User not found"));
             return;
         }
 
-        async.detect(user.randos, function (userRando, detectDone) {
-            detectDone(userRando.user.randoId == userRandoId && !userRando.stranger.email);
-        }, function (userRando) {
-            if (userRando) {
-                userRando.stranger = rando;
-                updateModels(user, rando, callback);
-            } else {
-                console.warn("Exchanger.randoToUser: Not found empty rando for pairing for user: ", email);
-                callback();
+        user.in.push(rando);
+        db.user.update(user, done);
+
+        db.user.getByEmail(rando.email, function (err, user) {
+            for (var i = 0; i < user.out.length; i++) {
+                if (user.out[i].randoId == rando.randoId) {
+                    user.out[i].strangerRandoId = chooser.randoId;
+                    break;
+                }
             }
-        });
-    });
-}
-function updateModels (user, rando, callback) {
-    async.parallel({
-        rmRando: function (done) {
-            db.rando.remove(rando, done);
-        },
-        updateUser: function (done) {
             db.user.update(user, done);
-        }
-    }, function (err) {
-        if (err) {
-            console.warn("Exchanger.updateModels: Can't remove rando or/and update user, because: ", err);
-        } 
-        callback(err);
+        });
     });
 }
 
