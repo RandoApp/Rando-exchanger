@@ -1,7 +1,7 @@
 var db = require("randoDB");
 var config = require("config");
 var async = require("async");
-var metrics = require("./src/metrics");
+var metrics = require("./metrics");
 
 var lonelyBucket = [];
 var halfPairBucket = [];
@@ -24,7 +24,7 @@ function fetchAllRandos (callback) {
         async.eachLimit(randos, 30, function (rando, callback) {
             attachUserToRando(rando, function (err) {
                 callback(err);
-            })
+            });
         }, function (err) {
             callback(err, randos);
         });
@@ -33,14 +33,33 @@ function fetchAllRandos (callback) {
 
 function attachUserToRando (rando, callback) {
     db.user.getByEmail(rando.email, function (err, user) {
-        rando.user = user;
-        callback(err);
+		if (err) {
+			console.log("Error on attachUserToRando: " + err);
+			callback(err);
+			return;
+		}
+
+		if (user) {
+			rando.user = user;
+			callback(err);
+		} else {
+			console.log("User with email: " + rando.email + " not found");
+			callback(new Error("not found"));
+		}
     });
 }
 
 
+function printRandos(randos) {
+	for (var i = 0; i < randos.length; i++) {
+		console.log("rando: " + randos[i].randoId + " has user: " + randos[i].user.email);
+	}
+}
 
 function exchangeRandos (randos) {
+	printRandos(randos);
+
+
     fillBackets(randos);
     // do {
         var chooser = selectChooser(lonelyBucket);
@@ -60,6 +79,7 @@ function exchangeRandos (randos) {
 
 
 function fillBackets (randos) {
+	console.log("Start fill buckets");
     for (var i = 0; i < randos.length; i++) {
         for (var j = 0; j < randos.length; j++) {
             if (i == j) continue;
@@ -170,5 +190,5 @@ function main () {
     });
 }
 
-main();
-    
+module.exports = main;
+
