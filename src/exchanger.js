@@ -60,7 +60,7 @@ function printRandos(randos) {
 		for (var j = 0; j < randos[i].user.out.length; j++) {
 			userOut.push(randos[i].user.out[j].randoId);
 		}
-		console.log("rando: " + randos[i].randoId + " has user: " + randos[i].user.email + " in: " + userIn + " out: " + userOut);
+		console.log("rando " + randos[i].randoId + ": " + randos[i].user.email + " in:[" + userIn + "], out:[" + userOut + "]");
 	}
 }
 
@@ -74,20 +74,29 @@ function exchangeRandos (randos) {
         console.log("Chooser: " + chooser.randoId);
 
         metrics.calculate(chooser, randos);
+		printMetrics(randos, chooser);
+
         var bestRando = selectBestRando(randos);
 
         console.log("Best rando: " + bestRando.randoId);
         
         if (bestRando.mark < 0) return ;//continue;
 
-        randoToUser(bestRando, chooser.user);
+        //randoToUser(bestRando, chooser.user);
     // } while (lonelyBucket.length >= 2);
 }
 
 
+function printMetrics (randos, chooser) {
+	var metrics = [];
+	for (var i = 0; i < randos.length; i++) {
+		metrics.push(JSON.stringify({randoId: randos[i].randoId, mark: randos[i].mark}));
+	}
+	console.log("Metrics[chooser " + chooser.randoId + "]: " + metrics);
+}
+
 
 function fillBuckets (randos) {
-	console.log("Start fill buckets");
     for (var i = 0; i < randos.length; i++) {
 		if (randos[i].strangerRandoId) {
 			halfPairBucket.push(randos[i]);
@@ -106,8 +115,8 @@ function fillBuckets (randos) {
         halfPairBucketIds.push(halfPairBucket[i].randoId);
     }
     
-    console.log("lonelyBucket: [" + lonelyBucketIds + "] " + lonelyBucket.length);
-    console.log("halfPairBucket: [" + halfPairBucketIds + "] " + halfPairBucket.length);
+    console.log("lonelyBucket: [" + lonelyBucketIds + "]");
+    console.log("halfPairBucket: [" + halfPairBucketIds + "]");
 }
 
 function hasUserRando (rando, user) {
@@ -132,7 +141,7 @@ function selectChooser (randos) {
 function selectBestRando(randos) {
     var bestRando = randos[0];
     for (var i = 1; i < randos.length; i++) {
-        if (bestRando.mark < randos[i]) {
+        if (bestRando.mark < randos[i].mark) {
             bestRando = randos[i];
         }
     }
