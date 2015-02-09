@@ -52,7 +52,15 @@ function attachUserToRando (rando, callback) {
 
 function printRandos(randos) {
 	for (var i = 0; i < randos.length; i++) {
-		console.log("rando: " + randos[i].randoId + " has user: " + randos[i].user.email);
+		var userIn = [];
+		for (var j = 0; j < randos[i].user.in.length; j++) {
+			userIn.push(randos[i].user.in[j].randoId);
+		}
+		var userOut = [];
+		for (var j = 0; j < randos[i].user.out.length; j++) {
+			userOut.push(randos[i].user.out[j].randoId);
+		}
+		console.log("rando: " + randos[i].randoId + " has user: " + randos[i].user.email + " in: " + userIn + " out: " + userOut);
 	}
 }
 
@@ -60,7 +68,7 @@ function exchangeRandos (randos) {
 	printRandos(randos);
 
 
-    fillBackets(randos);
+    fillBuckets(randos);
     // do {
         var chooser = selectChooser(lonelyBucket);
         console.log("Chooser: " + chooser.randoId);
@@ -78,7 +86,7 @@ function exchangeRandos (randos) {
 
 
 
-function fillBackets (randos) {
+function fillBuckets (randos) {
 	console.log("Start fill buckets");
     for (var i = 0; i < randos.length; i++) {
         for (var j = 0; j < randos.length; j++) {
