@@ -89,29 +89,25 @@ function exchangeRandos (randos) {
 function fillBuckets (randos) {
 	console.log("Start fill buckets");
     for (var i = 0; i < randos.length; i++) {
-        for (var j = 0; j < randos.length; j++) {
-            if (i == j) continue;
-
-            if (hasUserRando(randos[i], randos[j].user)) {
-                halfPairBucket.push(randos[i]);
-            } else {
-                lonelyBucket.push(randos[i]);
-            }
+		if (randos[i].strangerRandoId) {
+			halfPairBucket.push(randos[i]);
+		} else {
+			lonelyBucket.push(randos[i]);
         }
     }
 
-    var lonelyBucketStr = "";
+    var lonelyBucketIds = [];
     for (var i = 0; i < lonelyBucket.length; i++) {
-        lonelyBucketStr = ", " + lonelyBucket[i].randoId;
+        lonelyBucketIds.push(lonelyBucket[i].randoId);
     }
 
-    var halfPairBucketStr = "";
+    var halfPairBucketIds = [];
     for (var i = 0; i < halfPairBucket.length; i++) {
-        halfPairBucketStr = ", " + halfPairBucket[i].randoId;
+        halfPairBucketIds.push(halfPairBucket[i].randoId);
     }
     
-    console.log("lonelyBucket: [" + lonelyBucketStr + "]");
-    console.log("halfPairBucket: [" + halfPairBucketStr + "]");
+    console.log("lonelyBucket: [" + lonelyBucketIds + "] " + lonelyBucket.length);
+    console.log("halfPairBucket: [" + halfPairBucketIds + "] " + halfPairBucket.length);
 }
 
 function hasUserRando (rando, user) {

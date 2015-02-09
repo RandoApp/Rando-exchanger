@@ -46,16 +46,16 @@ rosie.define('user')
 	rosie.build('rando', {email: "user1@mail.com", randoId: '6', creation: 6})
 ])
 .attr("out", [
-	rosie.build('rando', {email: "dimhold@mail.com", randoId: '1', creation: 1}),
-	rosie.build('rando', {email: "dimhold@mail.com", randoId: '2', creation: 2}),
-	rosie.build('rando', {email: "dimhold@mail.com", randoId: '3', creation: 3}),
-	rosie.build('rando', {email: "dimhold@mail.com", randoId: '8', creation: 8})
+	rosie.build('rando', {email: "dimhold@gmail.com", randoId: '1', creation: 1}),
+	rosie.build('rando', {email: "dimhold@gmail.com", randoId: '2', creation: 2}),
+	rosie.build('rando', {email: "dimhold@gmail.com", randoId: '3', creation: 3}),
+	rosie.build('rando', {email: "dimhold@gmail.com", randoId: '8', creation: 8})
 ]);
 
 var user1 = rosie.build('user', {email: "user1@mail.com", 
 	"in": [
-		rosie.build('rando', {email: "dimhold@mail.com", randoId: '1', creation: 1}),
-		rosie.build('rando', {email: "dimhold@mail.com", randoId: '3', creation: 3})
+		rosie.build('rando', {email: "dimhold@gmail.com", randoId: '1', creation: 1}),
+		rosie.build('rando', {email: "dimhold@gmail.com", randoId: '3', creation: 3})
 	],
 	out: [
 		rosie.build('rando', {email: "user1@mail.com", randoId: '4', creation: 4}),
@@ -65,7 +65,7 @@ var user1 = rosie.build('user', {email: "user1@mail.com",
 
 var user2 = rosie.build('user', {email: "user2@mail.com", 
 	"in": [
-		rosie.build('rando', {email: "dimhold@mail.com", randoId: '2', creation: 2})
+		rosie.build('rando', {email: "dimhold@gmail.com", randoId: '2', creation: 2})
 	],
 	out: [
 		rosie.build('rando', {email: "user2@mail.com", randoId: '5', creation: 5}),
@@ -80,9 +80,9 @@ var user3 = rosie.build('user', {email: "user3@mail.com",
 		rosie.build('rando', {email: "user3@mail.com", randoId: '10', creation: 10})
 	]});
 
-db.rando.add(rosie.build('rando', {email: 'dimhold@mail.com', randoId: '8', creation: 8}));
+db.rando.add(rosie.build('rando', {email: 'dimhold@gmail.com', randoId: '8', creation: 8}));
 db.rando.add(rosie.build('rando', {email: 'user2@mail.com', randoId: '9', creation: 9}));
-db.rando.add(rosie.build('rando', {email: 'user1@mail.com', randoId: '7', creation: 7}));
+db.rando.add(rosie.build('rando', {email: 'user1@mail.com', randoId: '7', creation: 7, strangerRandoId: 10}));
 
 db.user.create(rosie.build('user'));
 db.user.create(user1);
