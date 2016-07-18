@@ -10,18 +10,18 @@
     "url": "https://github.com/RandoApp/Rando-exchanger.git"
   },
   "dependencies": {
-    "js-yaml": "3.x",
-    "config": "1.x",
-    "winston": "0.x",
-    "async": "0.x",
+    "js-yaml": "3.6.1",
+    "config": "1.21.0",
+    "winston": "2.2.0",
+    "async": "2.0.0-rc.6",
     "randoDB": "git+https://github.com/RandoApp/Rando-db.git"
   },
   "devDependencies": {
-    "mocha": "*",
-    "should": "*",
-    "sinon": "*",
-    "istanbul": "*",
-    "coveralls": "*"
+    "mocha": "2.5.3",
+    "should": "9.0.2",
+    "sinon": "1.17.4",
+    "istanbul": "0.4.4",
+    "coveralls": "2.11.9"
   },
   "scripts": {
     "test": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- --recursive",

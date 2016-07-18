@@ -1,4 +1,12 @@
+app:
+    log:
+        folder: logs
+        file: rando-exchanger.log
+        handleException: true
+        level:
+            console: trace
+            file: info
 exch:
     fetchRandosNumber: 100
 db:
-    url: mongodb://localhost/rando-test
+    url: mongodb://localhost/rando
