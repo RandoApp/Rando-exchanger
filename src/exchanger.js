@@ -183,7 +183,7 @@ function randoToUser (chooser, rando) {
   }
 
   for (var i = 0; halfPairBucket.length; i++) {
-    if (halfPairBucket[i].randoId == randoId) {
+    if (halfPairBucket[i].randoId == chooser.randoId) {
       logger.trace("[exchanger.randoToUser]", "Remove rando that was exchanged from halfPairBucket");
       halfPairBucket.splice(i, 1);
     }
