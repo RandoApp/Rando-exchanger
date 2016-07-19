@@ -93,7 +93,7 @@ function exchangeRandos (randos) {
     logger.trace("[exchanger.exchangeRandos]", "Trying to select best rando");
     var bestRando = selectBestRando(randos);
 
-    logger.debug("[exchanger.exchangeRandos]", "Best rando:", bestRando.randoId);
+    logger.debug("[exchanger.exchangeRandos]", "Best rando:", bestRando.randoId, "of", bestRando.user.email);
 
     if (bestRando.mark < 0) {
       logger.trace("[exchanger.exchangeRandos]", "Continue, because bestRando.mark < 0");
