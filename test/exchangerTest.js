@@ -11,17 +11,40 @@ describe('Exchanger.', function () {
       callback(null, [
         {email: "user1@mail.com", creation: Date.now(), randoId: 1},
         {email: "user2@mail.com", creation: Date.now(), randoId: 2},
-        {email: "user3@mail.com", creation: Date.now(), randoId: 3}
+        {email: "user3@mail.com", creation: Date.now() - 4 * 60 * 60 * 1000, randoId: 3}
         ]); 
     });
 
     sinon.stub(db.user, "getByEmail", function (email, callback) {
-      callback(null, {
-        email: email,
-        in: [],
-        out: []
+      if (email == "user1@mail.com") {
+        callback(null, {
+          email: email,
+          in: [],
+          out: [{email: "user1@mail.com", creation: Date.now(), randoId: 1}],
+          save: function (callback) {
+            callback(null);
+          }
+        });
+      } else if (email == "user2@mail.com") {
+        callback(null, {
+          email: email,
+          in: [],
+          out: [{email: "user2@mail.com", creation: Date.now(), randoId: 2}],
+          save: function (callback) {
+            callback(null);
+          }
+        });
+      } else if (email == "user3@mail.com") {
+        callback(null, {
+          email: email,
+          in: [],
+          out: [{email: "user3@mail.com", creation: Date.now(), randoId: 3}],
+          save: function (callback) {
+            callback(null);
+          }
+        });
+      }
       });
-    });
 
     exchanger();
     done();
