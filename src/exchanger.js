@@ -28,7 +28,7 @@ function fetchAllRandosAsync (callback) {
     logger.info("[exchanger.fetchAllRandosAsync] ", "Exchanger.pair: Get ", randos.length, " randos");
 
     async.eachLimit(randos, 30, function (rando, callback) {
-      logger.trace("[exchanger.fetchAllRandosAsync]", " Process rando: ", rando);
+      logger.trace("[exchanger.fetchAllRandosAsync]", " Process rando: ", rando.randoId);
       attachUserToRando(rando, function (err) {
         logger.trace("[exchanger.fetchAllRandosAsync.attachUserToRando callback] ", "Done");
         callback(err);
