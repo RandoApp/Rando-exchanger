@@ -13,19 +13,19 @@ var halfPairBucket = [];
 function fetchAllRandosAsync (callback) {
   db.rando.getFirstN(config.exch.fetchRandosNumber, function (err, randos) {
     if (err) {
-      logger.warn("[exchanger.fetchAllRandosAsync] ", "Exchanger.pair: Can't get all randos: ", err);
+      logger.warn("[exchanger.fetchAllRandosAsync]", "Exchanger.pair: Can't get all randos: ", err);
       callback(err);
       return;
     }
 
-    logger.trace("[exchanger.fetchAllRandosAsync] ", "Is randos null?");
+    logger.trace("[exchanger.fetchAllRandosAsync]", "Is randos null?");
     if (!randos) {
-      logger.debug("[exchanger.fetchAllRandosAsync] ", "Randos are null. Throw Randos not found error");
+      logger.debug("[exchanger.fetchAllRandosAsync]", "Randos are null. Throw Randos not found error");
       callback(new Error("Randos not found"));
       return;
     }
 
-    logger.info("[exchanger.fetchAllRandosAsync] ", "Exchanger.pair: Get ", randos.length, " randos");
+    logger.info("[exchanger.fetchAllRandosAsync]", "Exchanger.pair: Get ", randos.length, " randos");
 
     async.eachLimit(randos, 30, function (rando, callback) {
       logger.trace("[exchanger.fetchAllRandosAsync]", " Process rando: ", rando.randoId);
@@ -34,7 +34,11 @@ function fetchAllRandosAsync (callback) {
         callback(err);
       });
     }, function (err) {
-      logger.warn("[exchanger.fetchAllRandosAsync] ", "Each done with error: ", err);
+      if (err) {
+        logger.warn("[exchanger.fetchAllRandosAsync]", "Each done with error: ", err);
+      } else {
+        logger.warn("[exchanger.fetchAllRandosAsync]", "Each done successfully");
+      }
       callback(err, randos);
     });
   });
@@ -122,10 +126,10 @@ function printMetrics (randos, chooser) {
 function fillBuckets (randos) {
   for (var i = 0; i < randos.length; i++) {
     if (randos[i].strangerRandoId) {
-      logger.trace("[exchanger.fillBuckets]", "Put in halfPairBucket because randos with id:", randos[i].randoId, "has strangerRandoId: ", randos[i].strangerRandoId);
+      logger.trace("[exchanger.fillBuckets]", "Put in halfPairBucket because randos with id:", randos[i].randoId, "-", randos[i].user.email, "has strangerRandoId: ", randos[i].strangerRandoId);
       halfPairBucket.push(randos[i]);
     } else {
-      logger.trace("[exchanger.fillBuckets]", "Put in lonelyBucket because randos with id:", randos[i].randoId, "doesn't have strangerRandoId");
+      logger.trace("[exchanger.fillBuckets]", "Put in lonelyBucket because randos with id:", randos[i].randoId, "-", randos[i].user.email, "doesn't have strangerRandoId");
       lonelyBucket.push(randos[i]);
    }
   }
@@ -168,17 +172,18 @@ function selectChooser (randos) {
 
 function selectBestRando(randos) {
   var bestRando = randos[0];
+  logger.trace("[exchanger.selectBestRando]", "Starting with best rando:" bestRando.randoId, "[", bestRando.mark, "]");
   for (var i = 1; i < randos.length; i++) {
+    logger.trace("[exchanger.selectBestRando]", bestRando.randoId, "[", bestRando.mark,"] < ", randos[i].randoId, "[", randos[i].mark ,"]");
     if (bestRando.mark < randos[i].mark) {
       bestRando = randos[i];
+      logger.trace("[exchanger.selectBestRando]", "Update bestRando to ", randos[i].randoId);
     }
   }
   return bestRando;
 }
 
 function putRandoToUserAsync (chooser, rando, callback) {
-  cleanBuckets(chooser);
-
   logger.trace("[exchanger.putRandoToUserAsync]", "Trying put rando to user in db");
   async.waterfall([
     function fetchUser (done) {
@@ -213,6 +218,11 @@ function putRandoToUserAsync (chooser, rando, callback) {
     function updateStranger (user, done) {
       logger.trace("[exchanger.putRandoToUserAsync.updateStranger]", "Updating stranger");
       db.user.update(user, done);
+    },
+    function cleanBuckets (done) {
+      logger.trace("[exchanger.putRandoToUserAsync.cleanBuckets]", "Clean buckets");
+      cleanBuckets(chooser);
+      done();
     }
   ], function (err) {
     if (err) {

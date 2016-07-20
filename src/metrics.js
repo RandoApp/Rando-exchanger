@@ -1,4 +1,4 @@
-var fs = require("fs");
+var logger = require("./log/logger");
 
 module.exports = {
   metrics: [
@@ -13,14 +13,15 @@ module.exports = {
     this.metrics = [];
   },
   calculate: function (randoChooser, randos) {
+    logger.trace("[metrics.calculate]", "Start");
     var allMarks = [];
     for (var i = 0; i < this.metrics.length; i++) {
       var marks = this.calculateForMetric(this.metrics[i], randoChooser, randos);
-      console.log("Metric " + this.metrics[i].name + " result: " + JSON.stringify(marks));
+      logger.debug("Metric ", this.metrics[i].name, " result: ", marks);
       allMarks.push(marks);
     }
     var marks = this.reduceMarks(allMarks);
-    console.log("All metric final result: " + JSON.stringify(marks));
+    logger.debug("All metric final result: ", marks);
     this.applyMarks(marks, randos);
   },
   calculateForMetric: function (metric, randoChooser, randos) {
@@ -31,23 +32,30 @@ module.exports = {
     return marks;
   },
   reduceMarks: function (marks) {
+    logger.trace("[metrics.reduceMarks]", marks);
     var finalMarks = {};
     for (var id in marks[0]) {
       finalMarks[id] = 0;
     }
 
+    logger.trace("[metrics.reduceMarks]", "Empty finalMarks: ", finalMarks);
+
     for (var i = 0; i < marks.length; i++) {
       for (var id in marks[0]) {
+        logger.trace("[metrics.reduceMarks]", id, ":", finalMarks[id], "+=", marks[i][id]);
         finalMarks[id] += marks[i][id];
       }
     }
+    logger.trace("[metrics.reduceMarks]", "Final marks:", finalMarks);
     return finalMarks;
   },
   applyMarks: function (marks, randos) {
+    logger.trace("[metrics.applyMarks]");
     this.resetMarksForRandos(randos);
 
     for (var i = 0; i < randos.length; i++) {
       randos[i].mark += marks[randos[i].randoId];
+      logger.trace("[metrics.applyMarks]", randos[i].randoId, "[", randos[i].mark, "]", "+=", marks[randos[i].randoId]);
     }
   },
   resetMarksForRandos: function (randos) {
