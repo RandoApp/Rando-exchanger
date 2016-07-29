@@ -65,22 +65,22 @@ function attachUserToRando (rando, callback) {
 
 
 function printRandos(randos) {
-	for (var i = 0; i < randos.length; i++) {
-		var userIn = [];
-		for (var j = 0; j < randos[i].user.in.length; j++) {
-			userIn.push(randos[i].user.in[j].randoId);
-		}
-		var userOut = [];
-		for (var j = 0; j < randos[i].user.out.length; j++) {
-			userOut.push(randos[i].user.out[j].randoId);
-		}
-		logger.debug("[exchanger.attachUserToRando]", "rando " + randos[i].randoId + ": " + randos[i].user.email + " in:[" + userIn + "], out:[" + userOut + "]");
-	}
+  for (var i = 0; i < randos.length; i++) {
+    var userIn = [];
+    for (var j = 0; j < randos[i].user.in.length; j++) {
+      userIn.push(randos[i].user.in[j].randoId);
+    }
+    var userOut = [];
+    for (var j = 0; j < randos[i].user.out.length; j++) {
+      userOut.push(randos[i].user.out[j].randoId);
+    }
+    logger.debug("[exchanger.attachUserToRando]", "rando " + randos[i].randoId + ": " + randos[i].user.email + " in:[" + userIn + "], out:[" + userOut + "]");
+  }
 }
 
 function exchangeRandos (randos) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
-	printRandos(randos);
+  printRandos(randos);
   fillBuckets(randos);
   
   async.doUntil(function (done) {
@@ -172,7 +172,7 @@ function selectChooser (randos) {
 
 function selectBestRando(randos) {
   var bestRando = randos[0];
-  logger.trace("[exchanger.selectBestRando]", "Starting with best rando:" bestRando.randoId, "[", bestRando.mark, "]");
+  logger.trace("[exchanger.selectBestRando]", "Starting with best rando:", bestRando.randoId, "[", bestRando.mark, "]");
   for (var i = 1; i < randos.length; i++) {
     logger.trace("[exchanger.selectBestRando]", bestRando.randoId, "[", bestRando.mark,"] < ", randos[i].randoId, "[", randos[i].mark ,"]");
     if (bestRando.mark < randos[i].mark) {
@@ -219,8 +219,9 @@ function putRandoToUserAsync (chooser, rando, callback) {
       logger.trace("[exchanger.putRandoToUserAsync.updateStranger]", "Updating stranger");
       db.user.update(user, done);
     },
-    function cleanBuckets (done) {
-      logger.trace("[exchanger.putRandoToUserAsync.cleanBuckets]", "Clean buckets");
+    function cleanup (done) {
+      logger.trace("[exchanger.putRandoToUserAsync.cleanup]", "Cleanup start");
+      rando.strangerRandoId = chooser.randoId;
       cleanBuckets(chooser);
       done();
     }
@@ -228,7 +229,7 @@ function putRandoToUserAsync (chooser, rando, callback) {
     if (err) {
       logger.warn("[exchanger.putRandoToUserAsync.waterfall]", "Done. But we have error:", err);
     } else {
-       logger.warn("[exchanger.putRandoToUserAsync.waterfall]", "Done without errors");
+      logger.warn("[exchanger.putRandoToUserAsync.waterfall]", "Done without errors");
     }
     callback(err);
   });
@@ -259,6 +260,7 @@ function cleanBuckets (chooser) {
       lonelyBucket.splice(i, 1);
       logger.trace("[exchanger.putRandoToUserAsync]", "Push chooser-rando to halfPairBucket");
       halfPairBucket.push(chooser);
+      return;
     }
   }
 
@@ -266,6 +268,8 @@ function cleanBuckets (chooser) {
     if (halfPairBucket[i].randoId == chooser.randoId) {
       logger.trace("[exchanger.putRandoToUserAsync]", "Remove rando that was exchanged from halfPairBucket");
       halfPairBucket.splice(i, 1);
+      //TODO: remove chooser from db.randos collection!
+      return;
     }
   }
 }
@@ -273,13 +277,26 @@ function cleanBuckets (chooser) {
 function main () {
   var start = Date.now();
   logger.info("---> Exchanger start: " + new Date());
-  db.connect(config.db.url);
-  fetchAllRandosAsync(function (err, randos) {
-    if (!err && randos && randos.length > 1) {
-      exchangeRandos(randos, function () {
-
+  async.waterfall([
+    function init (done) {
+      db.connect(config.db.url);
+      done();
+    },
+    function loadData (done) {
+      fetchAllRandosAsync(function (err, randos) {
+        if (!err && randos && randos.length > 1) {
+          done(null, randos);
+        } else {
+          done("Error when fetch ALL randos");
+        }
       });
-      return;
+    },
+    function exchange (randos, done) {
+      exchangeRandos(randos, done);
+    }
+  ], function (err) {
+    if (err) {
+      logger.info("===> Exchanger finish with error:  ", err);
     }
 
     db.disconnect();
