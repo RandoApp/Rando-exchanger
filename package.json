@@ -14,7 +14,7 @@
     "config": "1.21.0",
     "winston": "2.2.0",
     "async": "2.0.0-rc.6",
-    "randoDB": "git+https://github.com/RandoApp/Rando-db.git"
+    "randoDB": "RandoApp/Rando-db#461bda5"
   },
   "devDependencies": {
     "mocha": "2.5.3",
