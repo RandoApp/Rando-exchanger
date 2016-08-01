@@ -78,7 +78,7 @@ function printRandos(randos) {
   }
 }
 
-function exchangeRandos (randos) {
+function exchangeRandos (randos, callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
   printRandos(randos);
   fillBuckets(randos);
@@ -112,6 +112,7 @@ function exchangeRandos (randos) {
     return lonelyBucket.length >= 2;
   }, function (err) {
     logger.info("[exchanger.exchangeRandos]", "exchangeRandos Done. We done successfully without error. Right?", !err);
+    callback(err);
   });
 }
 
@@ -222,8 +223,7 @@ function putRandoToUserAsync (chooser, rando, callback) {
     function cleanup (done) {
       logger.trace("[exchanger.putRandoToUserAsync.cleanup]", "Cleanup start");
       rando.strangerRandoId = chooser.randoId;
-      cleanBuckets(chooser);
-      done();
+      cleanBuckets(chooser, done);
     }
   ], function (err) {
     if (err) {
@@ -253,13 +253,14 @@ function fetchUserByEmail (email, done) {
   });
 }
 
-function cleanBuckets (chooser) {
+function cleanBuckets (chooser, done) {
   for (var i = 0; i < lonelyBucket.length; i++) {
     if (lonelyBucket[i].randoId == chooser.randoId) {
       logger.trace("[exchanger.putRandoToUserAsync]", "Remove chooser-rando from lonelyBucket");
       lonelyBucket.splice(i, 1);
       logger.trace("[exchanger.putRandoToUserAsync]", "Push chooser-rando to halfPairBucket");
       halfPairBucket.push(chooser);
+      done();
       return;
     }
   }
@@ -268,7 +269,7 @@ function cleanBuckets (chooser) {
     if (halfPairBucket[i].randoId == chooser.randoId) {
       logger.trace("[exchanger.putRandoToUserAsync]", "Remove rando that was exchanged from halfPairBucket");
       halfPairBucket.splice(i, 1);
-      //TODO: remove chooser from db.randos collection!
+      db.rando.removeById(chooser.randoId, done);
       return;
     }
   }
