@@ -220,9 +220,18 @@ function putRandoToUserAsync (chooser, rando, callback) {
       logger.trace("[exchanger.putRandoToUserAsync.updateStranger]", "Updating stranger");
       db.user.update(user, done);
     },
+    function fetchRandoFromDBBucket (done) {
+      logger.trace("[exchanger.putRandoToUserAsync.fetchRandoFromDBBucket]", "Fetching rando from db.randos");
+      db.rando.getByRandoId(rando.randoId, done);
+    },
+    function updateRando (randoFromDBBucket, done) {
+      logger.trace("[exchanger.putRandoToUserAsync.updateRando]", "updateRando rando: ", randoFromDBBucket.randoId, " in db.randos");
+      randoFromDBBucket.strangerRandoId = rando.randoId;
+      rando.strangerRandoId = chooser.randoId;
+      db.rando.update(randoFromDBBucket);
+    },
     function cleanup (done) {
       logger.trace("[exchanger.putRandoToUserAsync.cleanup]", "Cleanup start");
-      rando.strangerRandoId = chooser.randoId;
       cleanBuckets(chooser, done);
     }
   ], function (err) {
