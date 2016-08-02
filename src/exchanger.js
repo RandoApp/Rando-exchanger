@@ -228,7 +228,7 @@ function putRandoToUserAsync (chooser, rando, callback) {
       logger.trace("[exchanger.putRandoToUserAsync.updateRando]", "updateRando rando: ", randoFromDBBucket.randoId, " in db.randos");
       randoFromDBBucket.strangerRandoId = rando.randoId;
       rando.strangerRandoId = chooser.randoId;
-      db.rando.update(randoFromDBBucket);
+      db.rando.update(randoFromDBBucket, done);
     },
     function cleanup (done) {
       logger.trace("[exchanger.putRandoToUserAsync.cleanup]", "Cleanup start");
