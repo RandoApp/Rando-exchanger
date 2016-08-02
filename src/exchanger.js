@@ -148,8 +148,8 @@ function fillBuckets (randos) {
     halfPairBucketIds.push(halfPairBucket[i].randoId);
   }
 
-  logger.debug("lonelyBucket: [" + lonelyBucketIds + "]");
-  logger.debug("halfPairBucket: [" + halfPairBucketIds + "]");
+  logger.trace("lonelyBucket: ", lonelyBucketIds);
+  logger.trace("halfPairBucket: " ,halfPairBucketIds);
 }
 
 function hasUserRando (rando, user) {
