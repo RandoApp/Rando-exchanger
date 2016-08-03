@@ -20,7 +20,7 @@ module.exports = {
       logger.debug("Metric ", this.metrics[i].name, " result: ", marks);
       allMarks.push(marks);
     }
-    var marks = this.reduceMarks(allMarks);
+    var marks = this.reduceMarks(allMarks, randoChooser);
     logger.debug("All metric final result: ", marks);
     this.applyMarks(marks, randos);
   },
@@ -31,7 +31,7 @@ module.exports = {
     }
     return marks;
   },
-  reduceMarks: function (marks) {
+  reduceMarks: function (marks, chooser) {
     logger.trace("[metrics.reduceMarks]", marks);
     var finalMarks = {};
     for (var id in marks[0]) {
@@ -46,7 +46,7 @@ module.exports = {
         finalMarks[id] += marks[i][id];
       }
     }
-    logger.trace("[metrics.reduceMarks]", "Final marks:", finalMarks);
+    logger.info("[metrics.reduceMarks]", "Final marks for chooser", chooser.randoId, " ===>", finalMarks);
     return finalMarks;
   },
   applyMarks: function (marks, randos) {

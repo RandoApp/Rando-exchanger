@@ -7,6 +7,6 @@ app:
             console: trace
             file: info
 exch:
-    fetchRandosNumber: 100
+    fetchRandosNumber: 1000
 db:
     url: mongodb://localhost/rando
