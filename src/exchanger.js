@@ -3,6 +3,7 @@ var config = require("config");
 var logger = require("./log/logger");
 var async = require("async");
 var metrics = require("./metrics");
+var firebase = require("./firebase/firebase");
 
 function fetchAllRandosAsync (callback) {
   db.rando.getFirstN(config.exch.fetchRandosNumber, function (err, randos) {
@@ -60,9 +61,11 @@ function attachUserToRando (rando, callback) {
 function exchangeRandos (randos, callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
 
-  async.doUntil(function (done) {
+  var choosers = findAllChoosers(randos);
+  printChooser(choosers);
+
+  async.eachSeries(choosers, function (chooser, done) {
     //chooser is rando that will search other rando and put it to rando.user.in
-    var chooser = selectChooser(randos);
     logger.debug("[exchanger.exchangeRandos]", "Chooser is:", chooser.randoId, "of [", chooser.email, "]");
 
     logger.trace("[exchanger.exchangeRandos]", "Start calculating by metrics");
@@ -78,16 +81,14 @@ function exchangeRandos (randos, callback) {
 
     if (bestRando.mark < 0) {
       logger.trace("[exchanger.exchangeRandos]", "Continue, because bestRando.mark < 0");
-      done(null);
+      done();
+      return;
     }
 
     logger.trace("[exchanger.exchangeRandos]", "Trying put bestRando", bestRando.randoId ,"to user", chooser.user.email);
     putRandoToUserAsync(chooser, bestRando, randos, done);
 
     logger.trace("[exchanger.exchangeRandos]", "Do body is done.");
-  }, function () {
-    return true;
-    // return selectChooser(randos) !== null;
   }, function (err) {
     logger.info("[exchanger.exchangeRandos]", "exchangeRandos Done. We done successfully without error. Right?", !err);
     callback(err);
@@ -99,7 +100,15 @@ function printMetrics (randos, chooser) {
   for (var i = 0; i < randos.length; i++) {
     metrics.push(JSON.stringify({randoId: randos[i].randoId, mark: randos[i].mark}));
   }
-  logger.debug("[exchanger.exchangeRandos]", "Metrics[chooser " + chooser.randoId + "]: " + metrics);
+  logger.info("[printMetrics]", "Metrics[chooser", chooser.randoId, "]:", metrics);
+}
+
+function printChooser (choosers) {
+  var printableChoosers = [];
+  for (var i = 0; i < choosers.length; i++) {
+    printableChoosers.push({chooserId: choosers[i].randoId, chooserEmail: choosers[i].user.email});
+  }
+  logger.info("[printChooser] Choosers:", printableChoosers);
 }
 
 function hasUserRando (rando, user) {
@@ -111,39 +120,14 @@ function hasUserRando (rando, user) {
   return false;
 }
 
-function selectChooser (randos) {
-  var potentialChoosers = [];
-
+function findAllChoosers (randos) {
+  var choosers = [];
   for (var i = 0; i < randos.length; i++) {
     if (!isRandoWasChooser(randos[i], randos)) {
-      potentialChoosers.push(randos[i]);
+      choosers.push(randos[i]);
     }
   }
-
-  //chooserIds needs just for logging:
-  var chooserIds = [];
-  for (var i = 0; i < potentialChoosers.length; i++) {
-    chooserIds.push(potentialChoosers[i].randoId);
-  }
-  logger.info("[exchanger.selectChooser] can be chooser: ", chooserIds);  
-
-  if (potentialChoosers.length <= 0) {
-    return null;
-  }
-  
-  var chooser = findOldestRando(potentialChoosers);
-  logger.info("[exchanger.selectChooser] Chooser is", chooser.randoId, "-", chooser.user.email);
-  return chooser;
-}
-
-function findOldestRando (randos) {
-  var oldRando = randos[0];
-  for (var i = 1; i < randos.length; i++) {
-    if (oldRando.creation > randos[i]) {
-      oldRando = randos[i];
-    }
-  }
-  return oldRando;
+  return choosers;
 }
 
 function selectBestRando(randos) {
@@ -174,7 +158,18 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
     function updateUser (user, done) {
       logger.trace("[exchanger.putRandoToUserAsync.updateUser]", "Updating user");
       updateUserOnRandos(user, randos);
-      db.user.update(user, done);
+      db.user.update(user, function (err) {
+        done(err, user);
+      });
+    },
+    function sendNotificationToUser (user, done) {
+      logger.trace("[exchanger.sendNotificationToUser]", "Send message with ranodId: ", rando.randoId ," to user:", user.email);
+      var message = {
+        notificationType: "received",
+        rando: buildRando(rando)
+      };
+
+      firebase.sendMessageToDevices(message, findActiveFirabseIds(user), done);
     },
     function fetchStranger (done) {
       logger.trace("[exchanger.putRandoToUserAsync.fetchStranger", "Fetching stranger user: ", rando.email);
@@ -182,20 +177,33 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
     },
     function putRandoToStrangerOut (user, done) {
       logger.trace("[exchanger.putRandoToUserAsync.putRandoToStrangerOut]", "Fetching stranger user");
+      var updatedRando = {};
       for (var i = 0; i < user.out.length; i++) {
         if (user.out[i].randoId == rando.randoId) {
           logger.trace("[exchanger.putRandoToUserAsync.putRandoToStrangerOut]", "Updating strangerRandoId on stranger");
           user.out[i].strangerRandoId = chooser.randoId;
+          updatedRando = user.out[i];
           logger.data("Rando", rando.randoId, "by", user.email, " ---landed--to--user--->", chooser.email, "because his rando", chooser.randoId);
           break;
         }
       }
-      done(null, user);
+      done(null, user, updatedRando);
     },
-    function updateStranger (user, done) {
+    function updateStranger (user, updatedRando, done) {
       logger.trace("[exchanger.putRandoToUserAsync.updateStranger]", "Updating stranger");
       updateUserOnRandos(user, randos);
-      db.user.update(user, done);
+      db.user.update(user, function (err) {
+        done(err, user, updatedRando);
+      });
+    },
+    function sendNotificationToStranger (user, updatedRando, done) {
+      logger.trace("[exchanger.sendNotificationToStranger]", "Send message with ranodId: ", updatedRando.randoId ," to stranger:", user.email);
+      var message = {
+        notificationType: "landed",
+        rando: buildRando(updatedRando)
+      };
+
+      firebase.sendMessageToDevices(message, findActiveFirabseIds(user), done);
     },
     function fetchRandoFromDBBucket (done) {
       logger.trace("[exchanger.putRandoToUserAsync.fetchRandoFromDBBucket]", "Fetching rando from db.randos");
@@ -219,6 +227,32 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
     }
     callback(err);
   });
+}
+
+function buildRando (rando) {
+  logger.trace("[buildRando] build rando with id: ", rando.randoId);
+  return {
+    creation: rando.creation,
+    randoId: rando.randoId,
+    imageURL: rando.imageURL,
+    imageSizeURL: rando.imageSizeURL,
+    mapURL: rando.mapURL,
+    mapSizeURL: rando.mapSizeURL
+  };
+}
+
+function findActiveFirabseIds (user) {
+  logger.trace("[findActiveFirabseIds] Find firebase ids for user: ", user.email);
+  var firebaseIds = [];
+  if (user.firebaseInstanceIds) {
+    for (var i = 0; i < user.firebaseInstanceIds.length; i++) {
+      if (user.firebaseInstanceIds[i].active) {
+        firebaseIds.push(user.firebaseInstanceIds[i].instanceId);
+      }
+    }
+  }
+  logger.trace("[findActiveFirabseIds] Found firebase ids: ", firebaseIds, " for user: ", user.email);
+  return firebaseIds;
 }
 
 function updateUserOnRandos (user, randos) {
@@ -283,11 +317,11 @@ function isRandoWasChooser (rando, randos) {
   logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Process rando ", rando.randoId, " for ", randos.length, " randos");
   for (var i = 0; i < randos.length; i++) {
     if (rando.randoId == randos[i].strangerRandoId) {
-      logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can be choolser");
+      logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can NOT be chooser");
       return true;
     }
   }
-  logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can not be choolser");
+  logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can be chooser");
   return false;
 }
 

@@ -8,5 +8,7 @@ app:
             file: info
 exch:
     fetchRandosNumber: 1000
+firebase:
+    key: AIzaSyD1KKzva9ztqYqjxbswHowsD891x8alAZc
 db:
     url: mongodb://localhost/rando
