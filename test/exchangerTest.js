@@ -16,7 +16,7 @@ describe("Exchanger.", function () {
     });
 
     sinon.stub(db.user, "getByEmail", function (email, callback) {
-      if (email == "user1@mail.com") {
+      if (email === "user1@mail.com") {
         callback(null, {
           email: email,
           in: [],
@@ -25,7 +25,7 @@ describe("Exchanger.", function () {
             callback(null);
           }
         });
-      } else if (email == "user2@mail.com") {
+      } else if (email === "user2@mail.com") {
         callback(null, {
           email: email,
           in: [],
@@ -34,7 +34,7 @@ describe("Exchanger.", function () {
             callback(null);
           }
         });
-      } else if (email == "user3@mail.com") {
+      } else if (email === "user3@mail.com") {
         callback(null, {
           email: email,
           in: [],
