@@ -15,12 +15,13 @@ module.exports = {
   calculate: function (randoChooser, randos) {
     logger.trace("[metrics.calculate]", "Start");
     var allMarks = [];
+    var marks = {};
     for (var i = 0; i < this.metrics.length; i++) {
-      var marks = this.calculateForMetric(this.metrics[i], randoChooser, randos);
+      marks = this.calculateForMetric(this.metrics[i], randoChooser, randos);
       logger.debug("Metric ", this.metrics[i].name, " result: ", marks);
       allMarks.push(marks);
     }
-    var marks = this.reduceMarks(allMarks, randoChooser);
+    marks = this.reduceMarks(allMarks, randoChooser);
     logger.debug("All metric final result: ", marks);
     this.applyMarks(marks, randos);
   },
@@ -34,14 +35,14 @@ module.exports = {
   reduceMarks: function (marks, chooser) {
     logger.trace("[metrics.reduceMarks]", marks);
     var finalMarks = {};
-    for (var id in marks[0]) {
+    for (id in marks[0]) {
       finalMarks[id] = 0;
     }
 
     logger.trace("[metrics.reduceMarks]", "Empty finalMarks: ", finalMarks);
 
     for (var i = 0; i < marks.length; i++) {
-      for (var id in marks[0]) {
+      for (id in marks[0]) {
         logger.trace("[metrics.reduceMarks]", id, ":", finalMarks[id], "+=", marks[i][id]);
         finalMarks[id] += marks[i][id];
       }
