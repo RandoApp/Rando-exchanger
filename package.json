@@ -13,9 +13,9 @@
     "js-yaml": "3.6.1",
     "config": "1.21.0",
     "winston": "2.2.0",
-    "async": "2.0.0-rc.6",
+    "async": "2.0.1",
     "unirest": "0.5.0",
-    "randoDB": "RandoApp/Rando-db#461bda5"
+    "randoDB": "RandoApp/Rando-db"
   },
   "devDependencies": {
     "mocha": "2.5.3",

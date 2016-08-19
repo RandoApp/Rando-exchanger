@@ -54,8 +54,10 @@ module.exports = {
     this.resetMarksForRandos(randos);
 
     for (var i = 0; i < randos.length; i++) {
-      randos[i].mark += marks[randos[i].randoId];
-      logger.trace("[metrics.applyMarks]", randos[i].randoId, "[", randos[i].mark, "]", "+=", marks[randos[i].randoId]);
+      if (marks[randos[i].randoId]) {
+        randos[i].mark += marks[randos[i].randoId];
+        logger.trace("[metrics.applyMarks]", randos[i].randoId, "[", randos[i].mark, "]", "+=", marks[randos[i].randoId]);
+      }
     }
   },
   resetMarksForRandos: function (randos) {

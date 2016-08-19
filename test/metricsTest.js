@@ -28,15 +28,9 @@ describe('Metrics.', function () {
   it('Should set mark property for all randos', function (done) {
     var metricsMaster = metrics.metrics.slice(0);
     metrics.metrics = [
-    function someMetric () {
-      return 10;
-    },
-    function someMetric () {
-      return 4;
-    },
-    function someMetric () {
-      return -1;
-    }
+      {calculate () {return 10}},
+      {calculate () {return 4}},
+      {calculate () {return -1}},
     ];
     
     var randos = [{}, {}];
