@@ -18,28 +18,28 @@ describe("Exchanger.", function () {
     sinon.stub(db.user, "getByEmail", function (email, callback) {
       if (email === "user1@mail.com") {
         callback(null, {
-          email: email,
+          email,
           in: [],
           out: [{email: "user1@mail.com", creation: Date.now(), randoId: 1}],
-          save: function (callback) {
+          save (callback) {
             callback(null);
           }
         });
       } else if (email === "user2@mail.com") {
         callback(null, {
-          email: email,
+          email,
           in: [],
           out: [{email: "user2@mail.com", creation: Date.now(), randoId: 2}],
-          save: function (callback) {
+          save (callback) {
             callback(null);
           }
         });
       } else if (email === "user3@mail.com") {
         callback(null, {
-          email: email,
+          email,
           in: [],
           out: [{email: "user3@mail.com", creation: Date.now(), randoId: 3}],
-          save: function (callback) {
+          save (callback) {
             callback(null);
           }
         });
