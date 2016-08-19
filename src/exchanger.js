@@ -179,7 +179,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       logger.trace("[exchanger.putRandoToUserAsync.putRandoToStrangerOut]", "Fetching stranger user");
       var updatedRando = {};
       for (var i = 0; i < user.out.length; i++) {
-        if (user.out[i].randoId == rando.randoId) {
+        if (user.out[i].randoId === rando.randoId) {
           logger.trace("[exchanger.putRandoToUserAsync.putRandoToStrangerOut]", "Updating strangerRandoId on stranger");
           user.out[i].strangerRandoId = chooser.randoId;
           updatedRando = user.out[i];
@@ -316,7 +316,7 @@ function cleanBucket (randos, done) {
 function isRandoWasChooser (rando, randos) {
   logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Process rando ", rando.randoId, " for ", randos.length, " randos");
   for (var i = 0; i < randos.length; i++) {
-    if (rando.randoId == randos[i].strangerRandoId) {
+    if (rando.randoId === randos[i].strangerRandoId) {
       logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can NOT be chooser");
       return true;
     }
@@ -334,7 +334,7 @@ function isRandoFullyExchanged (rando, randos) {
 function findRandoByRandoId(randoId, randos) {
   logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.findRandoByRandoId]", "Process rando ", randoId, " for ", randos.length, " randos");
   for (var i = 0; i < randos.length; i++) {
-    if (randos[i].randoId == randoId) {
+    if (randos[i].randoId === randoId) {
       logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.findRandoByRandoId]", "Ranod with id ", randoId, " found in randos");
       return randos[i];
     }

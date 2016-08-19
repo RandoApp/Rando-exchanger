@@ -8,7 +8,7 @@ function buildMessage (message, deviceFirebaseId) {
     data: message,
     to: deviceFirebaseId
   };
-};
+}
 
 module.exports = {
   sendMessageToSingleDevice (message, deviceFirebaseId, callback) {

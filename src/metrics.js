@@ -6,13 +6,13 @@ module.exports = {
     require("./metrics/excludeThemselves"),
     require("./metrics/timeWaitingCorrection")
   ],
-  add: function (metric) {
+  add (metric) {
     this.metrics.push(metric);
   },
-  reset: function () {
+  reset () {
     this.metrics = [];
   },
-  calculate: function (randoChooser, randos) {
+  calculate (randoChooser, randos) {
     logger.trace("[metrics.calculate]", "Start");
     var allMarks = [];
     var marks = {};
@@ -25,15 +25,16 @@ module.exports = {
     logger.debug("All metric final result: ", marks);
     this.applyMarks(marks, randos);
   },
-  calculateForMetric: function (metric, randoChooser, randos) {
+  calculateForMetric (metric, randoChooser, randos) {
     var marks = {};
     for (var i = 0; i < randos.length; i++) {
       marks[randos[i].randoId] = metric.calculate(randoChooser, randos[i], randos);
     }
     return marks;
   },
-  reduceMarks: function (marks, chooser) {
+  reduceMarks (marks, chooser) {
     logger.trace("[metrics.reduceMarks]", marks);
+    var id;
     var finalMarks = {};
     for (id in marks[0]) {
       finalMarks[id] = 0;
@@ -50,7 +51,7 @@ module.exports = {
     logger.info("[metrics.reduceMarks]", "Final marks for chooser", chooser.randoId, " ===>", finalMarks);
     return finalMarks;
   },
-  applyMarks: function (marks, randos) {
+  applyMarks (marks, randos) {
     logger.trace("[metrics.applyMarks]");
     this.resetMarksForRandos(randos);
 
@@ -61,7 +62,7 @@ module.exports = {
       }
     }
   },
-  resetMarksForRandos: function (randos) {
+  resetMarksForRandos (randos) {
     for (var i = 0; i < randos.length; i++) {
       randos[i].mark = 0;
     }
