@@ -2,13 +2,13 @@ var should = require("should");
 var sinon = require("sinon");
 var metrics = require("../src/metrics");
 
-describe('Metrics.', function () {
-  it('Should contains metric modules in metrics array', function (done) {
+describe("Metrics.", function () {
+  it("Should contains metric modules in metrics array", function (done) {
     metrics.metrics.length.should.be.above(0);
     done();
   });
 
-  it('Should reset metrics array to empty array', function (done) {
+  it("Should reset metrics array to empty array", function (done) {
     var metricsMaster = metrics.metrics.slice(0);
     metrics.metrics.should.not.have.length(0);
     metrics.reset();
@@ -17,7 +17,7 @@ describe('Metrics.', function () {
     done();
   });
 
-  it('Should add metric func to metrics array', function (done) {
+  it("Should add metric func to metrics array", function (done) {
     var metricsMaster = metrics.metrics.slice(0);
     metrics.add(function someMetric () {});
     metrics.metrics.should.have.length(metricsMaster.length + 1);
@@ -25,12 +25,12 @@ describe('Metrics.', function () {
     done();
   });
 
-  it('Should set mark property for all randos', function (done) {
+  it("Should set mark property for all randos", function (done) {
     var metricsMaster = metrics.metrics.slice(0);
     metrics.metrics = [
-      {calculate () {return 10}},
-      {calculate () {return 4}},
-      {calculate () {return -1}},
+      {calculate () {return 10;}},
+      {calculate () {return 4;}},
+      {calculate () {return -1;}},
     ];
     
     var randos = [{}, {}];
@@ -44,7 +44,7 @@ describe('Metrics.', function () {
     done();
   });
 
-  it('Should set 0 mark property for all randos when metrics array are empty', function (done) {
+  it("Should set 0 mark property for all randos when metrics array are empty", function (done) {
     var metricsMaster = metrics.metrics.slice(0);
     metrics.metrics = [];
     
@@ -59,7 +59,7 @@ describe('Metrics.', function () {
     done();
   });
 
-  it('Should set mark property for all randos and ignore privious mark value when mark property already exist', function (done) {
+  it("Should set mark property for all randos and ignore privious mark value when mark property already exist", function (done) {
     var metricsMaster = metrics.metrics.slice(0);
     metrics.metrics = [];
     

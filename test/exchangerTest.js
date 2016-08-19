@@ -3,9 +3,9 @@ var sinon = require("sinon");
 var db = require("randoDB");
 var exchanger = require("../src/exchanger");
 
-describe('Exchanger.', function () {
-  describe('Main.', function () {
-   it('Should exchange', function (done) {
+describe("Exchanger.", function () {
+  describe("Main.", function () {
+   it("Should exchange", function (done) {
     sinon.stub(db.rando, "getFirstN", function (N, callback) {
       db.rando.getFirstN.restore();
       callback(null, [

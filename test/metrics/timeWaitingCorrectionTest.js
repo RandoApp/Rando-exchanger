@@ -3,9 +3,9 @@ var sinon = require("sinon");
 var db = require("randoDB");
 var metric = require("../../src/metrics/timeWaitingCorrection");
 
-describe('TimeWaitingCorrectionTest.', function () {
-  describe('Calculation.', function () {
-    it('Should add 10 for every hour of wating', function (done) {
+describe("TimeWaitingCorrectionTest.", function () {
+  describe("Calculation.", function () {
+    it("Should add 10 for every hour of wating", function (done) {
       var randoChooser = {};
       
       var randoToMark = {

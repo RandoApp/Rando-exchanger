@@ -113,7 +113,7 @@ function printChooser (choosers) {
 
 function hasUserRando (rando, user) {
   for (var i = 0; i < user.in.length; i++) {
-    if (user.in[i].randoId == rando.randoId) {
+    if (user.in[i].randoId === rando.randoId) {
       return true;
     }
   }
@@ -257,7 +257,7 @@ function findActiveFirabseIds (user) {
 
 function updateUserOnRandos (user, randos) {
   for (var i = 0; i < randos.length; i++) {
-    if (randos[i].user.email == user.email) {
+    if (randos[i].user.email === user.email) {
       randos[i].user = user;
     }
   }
@@ -302,7 +302,7 @@ function cleanBucket (randos, done) {
 
     for (var i = 0; i < removedRandos.length; i++) {
       for (var j = 0; j < randos.length; j++) {
-        if (removedRandos[i].randoId == randos[j].randoId) {
+        if (removedRandos[i].randoId === randos[j].randoId) {
           logger.trace("[exchanger.putRandoToUserAsync.cleanBucket]", "Clean rando from randos array in memory. ");
           randos.splice(j, 1);
         }
