@@ -5,6 +5,8 @@ var async = require("async");
 var metrics = require("./metrics");
 var firebase = require("./firebase/firebase");
 var printUtil = require("./util/printUtil");
+var randoUtil = require("./util/randoUtil");
+var dbUtil = require("./util/dbUtil");
 
 function fetchAllRandosAsync (callback) {
   db.rando.getFirstN(config.exch.fetchRandosNumber, function (err, randos) {
@@ -62,7 +64,7 @@ function attachUserToRando (rando, callback) {
 function exchangeRandos (randos, callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
 
-  var choosers = findAllChoosers(randos);
+  var choosers = randoUtil.findAllChoosers(randos);
   printUtil.printChooser(choosers);
 
   async.eachSeries(choosers, function (chooser, done) {
@@ -96,25 +98,6 @@ function exchangeRandos (randos, callback) {
   });
 }
 
-function hasUserRando (rando, user) {
-  for (var i = 0; i < user.in.length; i++) {
-    if (user.in[i].randoId === rando.randoId) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function findAllChoosers (randos) {
-  var choosers = [];
-  for (var i = 0; i < randos.length; i++) {
-    if (!isRandoWasChooser(randos[i], randos)) {
-      choosers.push(randos[i]);
-    }
-  }
-  return choosers;
-}
-
 function selectBestRando(randos) {
   var bestRando = randos[0];
   logger.trace("[exchanger.selectBestRando]", "Starting with best rando:", bestRando.randoId, "[", bestRando.mark, "]");
@@ -132,7 +115,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
   logger.trace("[exchanger.putRandoToUserAsync]", "Trying put rando to user in db");
   async.waterfall([
     function fetchUser (done) {
-      fetchUserByEmail(chooser.email, done);
+      dbUtil.fetchUserByEmail(chooser.email, done);
     },
     function putRandoToUserIn (user, done) {
       logger.trace("[exchanger.putRandoToUserAsync.putRandoToUserIn]", "Put rando to user.in");
@@ -154,11 +137,11 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
         rando: buildRando(rando)
       };
 
-      firebase.sendMessageToDevices(message, findActiveFirabseIds(user), done);
+      firebase.sendMessageToDevices(message, randoUtil.findActiveFirabseIds(user), done);
     },
     function fetchStranger (done) {
       logger.trace("[exchanger.putRandoToUserAsync.fetchStranger", "Fetching stranger user: ", rando.email);
-      fetchUserByEmail(rando.email, done);
+      dbUtil.fetchUserByEmail(rando.email, done);
     },
     function putRandoToStrangerOut (user, done) {
       logger.trace("[exchanger.putRandoToUserAsync.putRandoToStrangerOut]", "Fetching stranger user");
@@ -188,7 +171,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
         rando: buildRando(updatedRando)
       };
 
-      firebase.sendMessageToDevices(message, findActiveFirabseIds(user), done);
+      firebase.sendMessageToDevices(message, randoUtil.findActiveFirabseIds(user), done);
     },
     function fetchRandoFromDBBucket (done) {
       logger.trace("[exchanger.putRandoToUserAsync.fetchRandoFromDBBucket]", "Fetching rando from db.randos");
@@ -226,20 +209,6 @@ function buildRando (rando) {
   };
 }
 
-function findActiveFirabseIds (user) {
-  logger.trace("[findActiveFirabseIds] Find firebase ids for user: ", user.email);
-  var firebaseIds = [];
-  if (user.firebaseInstanceIds) {
-    for (var i = 0; i < user.firebaseInstanceIds.length; i++) {
-      if (user.firebaseInstanceIds[i].active) {
-        firebaseIds.push(user.firebaseInstanceIds[i].instanceId);
-      }
-    }
-  }
-  logger.trace("[findActiveFirabseIds] Found firebase ids: ", firebaseIds, " for user: ", user.email);
-  return firebaseIds;
-}
-
 function updateUserOnRandos (user, randos) {
   for (var i = 0; i < randos.length; i++) {
     if (randos[i].user.email === user.email) {
@@ -248,29 +217,11 @@ function updateUserOnRandos (user, randos) {
   }
 }
 
-function fetchUserByEmail (email, done) {
-  db.user.getByEmail(email, function (err, user) {
-    if (err) {
-      logger.warn("[exchanger.putRandoToUserAsync.fetchUserByEmail]", "Data base error when getByEmail:", email);
-      done(err);
-      return;
-    }
-
-    if (!user) {
-      logger.warn("[exchanger.putRandoToUserAsync.fetchUserByEmail]", "User not found:", email);
-      done(new Error("User not found"));
-      return;
-    }
-
-    done(null, user);
-  });
-}
-
 function cleanBucket (randos, done) {
   var removedRandos = [];
   async.forEachOf(randos, function (rando, index, eachDone) {
     logger.trace("[exchanger.putRandoToUserAsync.cleanBucket]", "Process rando ", rando.randoId, "[", index, "/", randos.length, "]");
-    if (isRandoFullyExchanged(rando, randos)) {
+    if (randoUtil.isRandoFullyExchanged(rando, randos)) {
       logger.trace("[exchanger.putRandoToUserAsync.cleanBucket]", "Remove rando from db.randos", rando.randoId);
       removedRandos.push(rando);
       db.rando.removeById(rando.randoId, eachDone);
@@ -296,36 +247,6 @@ function cleanBucket (randos, done) {
 
     done(err);
   });
-}
-
-function isRandoWasChooser (rando, randos) {
-  logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Process rando ", rando.randoId, " for ", randos.length, " randos");
-  for (var i = 0; i < randos.length; i++) {
-    if (rando.randoId === randos[i].strangerRandoId) {
-      logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can NOT be chooser");
-      return true;
-    }
-  }
-  logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can be chooser");
-  return false;
-}
-
-function isRandoFullyExchanged (rando, randos) {
-  return isRandoWasChooser (rando, randos) 
-    && rando.strangerRandoId 
-    && isRandoWasChooser(findRandoByRandoId(rando.strangerRandoId, randos), randos);
-}
-
-function findRandoByRandoId(randoId, randos) {
-  logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.findRandoByRandoId]", "Process rando ", randoId, " for ", randos.length, " randos");
-  for (var i = 0; i < randos.length; i++) {
-    if (randos[i].randoId === randoId) {
-      logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.findRandoByRandoId]", "Ranod with id ", randoId, " found in randos");
-      return randos[i];
-    }
-  }
-  logger.trace("[exchanger.putRandoToUserAsync.cleanBucket.findRandoByRandoId]", "Ranod with id ", randoId, " not found in randos");
-  return null;
 }
 
 function main () {
