@@ -4,6 +4,7 @@ var logger = require("./log/logger");
 var async = require("async");
 var metrics = require("./metrics");
 var firebase = require("./firebase/firebase");
+var printUtil = require("./util/printUtil");
 
 function fetchAllRandosAsync (callback) {
   db.rando.getFirstN(config.exch.fetchRandosNumber, function (err, randos) {
@@ -62,7 +63,7 @@ function exchangeRandos (randos, callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
 
   var choosers = findAllChoosers(randos);
-  printChooser(choosers);
+  printUtil.printChooser(choosers);
 
   async.eachSeries(choosers, function (chooser, done) {
     //chooser is rando that will search other rando and put it to rando.user.in
@@ -72,7 +73,7 @@ function exchangeRandos (randos, callback) {
     metrics.calculate(chooser, randos);
 
     logger.trace("[exchanger.exchangeRandos]", "Calculation is done. Print metrics");
-    printMetrics(randos, chooser);
+    printUtil.printMetrics(randos, chooser);
 
     logger.trace("[exchanger.exchangeRandos]", "Trying to select best rando");
     var bestRando = selectBestRando(randos);
@@ -93,22 +94,6 @@ function exchangeRandos (randos, callback) {
     logger.info("[exchanger.exchangeRandos]", "exchangeRandos Done. We done successfully without error. Right?", !err);
     callback(err);
   });
-}
-
-function printMetrics (randos, chooser) {
-  var metrics = [];
-  for (var i = 0; i < randos.length; i++) {
-    metrics.push(JSON.stringify({randoId: randos[i].randoId, mark: randos[i].mark}));
-  }
-  logger.info("[printMetrics]", "Metrics[chooser", chooser.randoId, "]:", metrics);
-}
-
-function printChooser (choosers) {
-  var printableChoosers = [];
-  for (var i = 0; i < choosers.length; i++) {
-    printableChoosers.push({chooserId: choosers[i].randoId, chooserEmail: choosers[i].user.email});
-  }
-  logger.info("[printChooser] Choosers:", printableChoosers);
 }
 
 function hasUserRando (rando, user) {
