@@ -63,7 +63,7 @@ module.exports = {
       mapSizeURL: rando.mapSizeURL
     };
   },
-  findFullyExchangedRandosdRandos (randos) {
+  findFullyExchangedRandos (randos) {
     var fullyExchangedRandos = [];
     if (randos) {
       for (var i = 0; i < randos.length; i++) {
