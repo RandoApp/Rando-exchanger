@@ -16,14 +16,14 @@ module.exports = {
   },
   //PRIVATE?
   isRandoWasChooser (rando, randos) {
-    logger.trace("[randoUtil.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Process rando ", rando.randoId, " for ", randos.length, " randos");
+    logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Process rando ", rando.randoId, " for ", randos.length, " randos");
     for (var i = 0; i < randos.length; i++) {
       if (rando.randoId === randos[i].strangerRandoId) {
-        logger.trace("[randoUtil.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can NOT be chooser");
+        logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can NOT be chooser");
         return true;
       }
     }
-    logger.trace("[randoUtil.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can be chooser");
+    logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can be chooser");
     return false;
   },
   isRandoFullyExchanged (rando, randos) {
@@ -48,11 +48,11 @@ module.exports = {
   },
   buildRando (rando) {
     if (!rando) {
-      logger.trace("[randoUtil.buildRando]", "rando is empty => return empty object");
+      logger.trace("[randoService.buildRando]", "rando is empty => return empty object");
       return {};
     }
 
-    logger.trace("[randoUtil.buildRando] build rando with id: ", rando.randoId);
+    logger.trace("[randoService.buildRando] build rando with id: ", rando.randoId);
     
     return {
       creation: rando.creation,
@@ -63,12 +63,12 @@ module.exports = {
       mapSizeURL: rando.mapSizeURL
     };
   },
-  findFullyExchangedRandos (randos) {
+  findFullyExchangedRandosdRandos (randos) {
     var fullyExchangedRandos = [];
     if (randos) {
       for (var i = 0; i < randos.length; i++) {
         if (this.isRandoFullyExchanged(randos[i], randos)) {
-          logger.trace("[randoUtil.putRandoToUserAsync.cleanBucket]", "Remove rando from db.randos", randos[i].randoId);
+          logger.trace("[randoService.putRandoToUserAsync.cleanBucket]", "Remove rando from db.randos", randos[i].randoId);
           fullyExchangedRandos.push(randos[i]);
         }
       }
@@ -93,12 +93,12 @@ module.exports = {
     }
 
     var bestRando = randos[0];
-    logger.trace("[randoUtil.selectBestRando]", "Starting with best rando:", bestRando.randoId, "[", bestRando.mark, "]");
+    logger.trace("[randoService.selectBestRando]", "Starting with best rando:", bestRando.randoId, "[", bestRando.mark, "]");
     for (var i = 1; i < randos.length; i++) {
-      logger.trace("[randoUtil.selectBestRando]", bestRando.randoId, "[", bestRando.mark,"] < ", randos[i].randoId, "[", randos[i].mark ,"]");
+      logger.trace("[randoService.selectBestRando]", bestRando.randoId, "[", bestRando.mark,"] < ", randos[i].randoId, "[", randos[i].mark ,"]");
       if (bestRando.mark < randos[i].mark) {
         bestRando = randos[i];
-        logger.trace("[randoUtil.selectBestRando]", "Update bestRando to ", randos[i].randoId);
+        logger.trace("[randoService.selectBestRando]", "Update bestRando to ", randos[i].randoId);
       }
     }
     return bestRando;
