@@ -12,18 +12,16 @@ function buildMessage (message, deviceFirebaseId) {
 
 module.exports = {
   findActiveFirabseIds (user) {
-    if (!user) {
+    if (!user || !user.firebaseInstanceIds) {
       logger.warn("[firebaseService.findActiveFirabseIds] user is empty!");
       return [];
     }
 
     logger.trace("[firebaseService.findActiveFirabseIds] Find firebase ids for user: ", user.email);
     var firebaseIds = [];
-    if (user.firebaseInstanceIds) {
-      for (var i = 0; i < user.firebaseInstanceIds.length; i++) {
-        if (user.firebaseInstanceIds[i].active) {
-          firebaseIds.push(user.firebaseInstanceIds[i].instanceId);
-        }
+    for (var i = 0; i < user.firebaseInstanceIds.length; i++) {
+      if (user.firebaseInstanceIds[i].active) {
+        firebaseIds.push(user.firebaseInstanceIds[i].instanceId);
       }
     }
     logger.trace("[firebaseService.findActiveFirabseIds] Found firebase ids: ", firebaseIds, " for user: ", user.email);
@@ -32,15 +30,15 @@ module.exports = {
   sendMessageToSingleDevice (message, deviceFirebaseId, callback) {
     logger.trace("[firebase.sendMessageToSingleDevice]", "Start sending message");
     firebase.post("https://fcm.googleapis.com/fcm/send")
-      .headers({
-        Authorization: "key=" + config.firebase.key,
-        "Content-Type": "application/json"
-      })
-      .send(buildMessage(message, deviceFirebaseId))
-      .end(function (response) {
-        logger.trace("[firebase] response body:", response.body);
-        callback(null, response.body);
-      });
+    .headers({
+      Authorization: "key=" + config.firebase.key,
+      "Content-Type": "application/json"
+    })
+    .send(buildMessage(message, deviceFirebaseId))
+    .end(function (response) {
+      logger.trace("[firebase] response body:", response.body);
+      callback(null, response.body);
+    });
   },
   sendMessageToDevices (message, deviceFirebaseIds, callback) {
     logger.trace("[firebase.sendMessageToDevices]", "Start sending messages");

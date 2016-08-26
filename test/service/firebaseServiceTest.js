@@ -16,7 +16,7 @@ describe("FirebaseService.", function () {
         ]
       };
       
-      var expected = [ 2, 4]
+      var expected = [ 2, 4];
 
       var ids = firebaseService.findActiveFirabseIds(user);
 

@@ -11,7 +11,7 @@ describe("RandoService.", function () {
         { randoId: 2, strangerRandoId: 3 },
         { randoId: 3, strangerRandoId: 4 },
         { randoId: 4}
-      ]
+      ];
       
       var expected = [
         { randoId: 1 },
@@ -49,7 +49,7 @@ describe("RandoService.", function () {
         { randoId: 2, strangerRandoId: 3 },
         { randoId: 3, strangerRandoId: 4 },
         { randoId: 4}
-      ]
+      ];
       
       randoService.isRandoFullyExchanged({randoId: 3, strangerRandoId: 4}, randos).should.be.false;
       
@@ -68,7 +68,8 @@ describe("RandoService.", function () {
         { randoId: 1, strangerRandoId: 2 },
         { randoId: 2, strangerRandoId: 3 },
         { randoId: 3, strangerRandoId: 1 }
-      ]
+      ];
+
       randoService.isRandoFullyExchanged(randos).should.be.false
       done();
     });
@@ -81,8 +82,8 @@ describe("RandoService.", function () {
         { randoId: 2, strangerRandoId: 3 },
         { randoId: 3, strangerRandoId: 4 },
         { randoId: 4}
-      ]
-      
+      ];
+
       var expected = [{randoId: 3, strangerRandoId: 4}];
       var actual = randoService.findFullyExchangedRandos(randos);
 
@@ -102,7 +103,8 @@ describe("RandoService.", function () {
         { randoId: 1, strangerRandoId: 2 },
         { randoId: 2, strangerRandoId: 3 },
         { randoId: 3, strangerRandoId: 1 }
-      ]
+      ];
+
       randoService.isRandoFullyExchanged(randos).should.be.empty();
       done();
     });
@@ -125,7 +127,7 @@ describe("RandoService.", function () {
         delete: 1,
         rating: 3,
         someMoreField: "12345"
-      }
+      };
 
       var expected = {
         creation: 123,
@@ -138,7 +140,7 @@ describe("RandoService.", function () {
         mapSizeURL: {
           small: "http://rando4.me/map/small/1.png"
         }
-      }
+      };
 
       var actual = randoService.buildRando(bigRando);
       expected.should.be.eql(actual);
