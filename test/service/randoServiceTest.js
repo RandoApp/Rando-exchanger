@@ -71,7 +71,7 @@ describe("RandoService.", function () {
         { randoId: 3, strangerRandoId: 1 }
       ];
 
-      randoService.isRandoFullyExchanged(randos).should.be.false
+      randoService.isRandoFullyExchanged(randos).should.be.false;
       done();
     });
   });
