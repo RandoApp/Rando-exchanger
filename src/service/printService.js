@@ -6,7 +6,7 @@ module.exports = {
     for (var i = 0; i < choosers.length; i++) {
       printableChoosers.push({
         chooserId: choosers[i].randoId,
-        chooserEmail: choosers[i].user.email}
+        chooserEmail: choosers[i].email}
       );
     }
     logger.info("[printUtil.printChooser] Choosers:", printableChoosers);

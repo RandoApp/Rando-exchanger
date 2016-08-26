@@ -11,6 +11,24 @@ function buildMessage (message, deviceFirebaseId) {
 }
 
 module.exports = {
+  findActiveFirabseIds (user) {
+    if (!user) {
+      logger.warn("[firebaseService.findActiveFirabseIds] user is empty!");
+      return [];
+    }
+
+    logger.trace("[firebaseService.findActiveFirabseIds] Find firebase ids for user: ", user.email);
+    var firebaseIds = [];
+    if (user.firebaseInstanceIds) {
+      for (var i = 0; i < user.firebaseInstanceIds.length; i++) {
+        if (user.firebaseInstanceIds[i].active) {
+          firebaseIds.push(user.firebaseInstanceIds[i].instanceId);
+        }
+      }
+    }
+    logger.trace("[firebaseService.findActiveFirabseIds] Found firebase ids: ", firebaseIds, " for user: ", user.email);
+    return firebaseIds;
+  },
   sendMessageToSingleDevice (message, deviceFirebaseId, callback) {
     logger.trace("[firebase.sendMessageToSingleDevice]", "Start sending message");
     firebase.post("https://fcm.googleapis.com/fcm/send")
