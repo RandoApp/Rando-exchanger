@@ -36,7 +36,8 @@ describe("RandoService.", function () {
         { randoId: 1, strangerRandoId: 2  },
         { randoId: 2, strangerRandoId: 3 },
         { randoId: 3, strangerRandoId: 1 }
-      ]
+      ];
+
       randoService.findAllChoosers(randos).should.be.empty();
       done();
     });
@@ -277,6 +278,5 @@ describe("RandoService.", function () {
       done();
     });
   });
-
 
 });
