@@ -5,20 +5,22 @@ var config = require("config");
 
 module.exports = {
   fetchUserByEmail (email, callback) {
+    if (!email) {
+      return callback(new Error("Incorrect email arg"));
+    }
+
     db.user.getByEmail(email, function (err, user) {
       if (err) {
         logger.warn("[exchanger.putRandoToUserAsync.fetchUserByEmail]", "Data base error when getByEmail:", email);
-        callback(err);
-        return;
+        return callback(err);
       }
 
       if (!user) {
         logger.warn("[exchanger.putRandoToUserAsync.fetchUserByEmail]", "User not found:", email);
-        callback(new Error("User not found"));
-        return;
+        return callback(new Error("User not found"));
       }
 
-      callback(null, user);
+      return callback(null, user);
     });
   },
   fetchRandos (callback) {
@@ -71,7 +73,7 @@ module.exports = {
         return callback();
       } else {
         logger.debug("[exchanger.attachUserToRando] ", "User with email: " + rando.email + " not found");
-        return callback(new Error("not found"));
+        return callback(new Error("User not found"));
       }
     });
   },

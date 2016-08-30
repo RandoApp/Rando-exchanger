@@ -29,6 +29,11 @@ module.exports = {
   },
   sendMessageToSingleDevice (message, deviceFirebaseId, callback) {
     logger.trace("[firebase.sendMessageToSingleDevice]", "Start sending message");
+
+    if (!message || !deviceFirebaseId) {
+      return callback(new Error("Message or deviceFirebaseId is empty"));
+    }
+
     firebase.post("https://fcm.googleapis.com/fcm/send")
     .headers({
       Authorization: "key=" + config.firebase.key,

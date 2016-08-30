@@ -1,6 +1,8 @@
+var firebase = require("unirest");
 var should = require("should");
 var sinon = require("sinon");
 var db = require("randoDB");
+var mockUtil = require("../mockUtil");
 var firebaseService = require("../../src/service/firebaseService");
 
 describe("FirebaseService.", function () {
@@ -50,5 +52,87 @@ describe("FirebaseService.", function () {
     });
   });
 
+  describe("sendMessageToSingleDevice.", function () {
+    afterEach(function() {
+      mockUtil.clean(firebase);
+    });
+
+    it("Should send message when all is ok", function (done) {
+      sinon.stub(firebase, "post", function () {
+        return {
+          headers () { return this; },
+          send (msg) {
+            msg.should.be.eql({ data: 'Test message', to: 'id1' });
+            return this;
+          },
+          end (done) {
+            done({body: "ok"});
+          }
+        };
+      });
+
+      firebaseService.sendMessageToSingleDevice("Test message", "id1", function (err, status) {
+        should.not.exist(err);
+        status.should.be.eql("ok");
+        done();
+      });
+    });
+
+    it("Should return error when message is undefined", function (done) {
+      firebaseService.sendMessageToSingleDevice(null, "id1", function (err, status) {
+        err.should.have.property("message", "Message or deviceFirebaseId is empty");
+        done();
+      });
+    });
+
+    it("Should return error when firebaseInstanceId is undefined", function (done) {
+      firebaseService.sendMessageToSingleDevice("Test message", null, function (err, status) {
+        err.should.have.property("message", "Message or deviceFirebaseId is empty");
+        done();
+      });
+    });
+  });
+
+
+  describe("sendMessageToDevices.", function () {
+    afterEach(function() {
+      mockUtil.clean(firebase);
+    });
+
+    it("Should send messages when all is ok", function (done) {
+      sinon.stub(firebase, "post", function () {
+        return {
+          headers () { return this; },
+          send (msg) {
+            msg.data.should.be.eql("Test message");
+            msg.to.should.match(/id[1-3]/);
+            return this;
+          },
+          end (done) {
+            done({body: "ok"});
+          }
+        };
+      });
+
+      firebaseService.sendMessageToDevices("Test message", ["id1", "id2", "id3"], function (err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    it("Should return error when message is undefined", function (done) {
+      firebaseService.sendMessageToDevices(null, ["id1", "id2", "id3"], function (err) {
+        err.should.have.property("message", "Message or deviceFirebaseId is empty");
+        done();
+      });
+    });
+
+    it("Should return error when firebaseInstanceId is undefined", function (done) {
+      firebaseService.sendMessageToDevices("Test message", [], function (err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+  });
 
 });
