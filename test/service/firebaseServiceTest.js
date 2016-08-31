@@ -135,4 +135,70 @@ describe("FirebaseService.", function () {
     });
   });
 
+  describe("sendMessageToAllActiveUserDevices.", function () {
+    afterEach(function() {
+      mockUtil.clean(firebase);
+    });
+
+    it("Should send messages when all is ok", function (done) {
+      var user = {
+        email: "user@email.com",
+        firebaseInstanceIds: [
+          { instanceId: "id0", active: false },
+          { instanceId: "id1", active: true },
+          { instanceId: "id9", active: false },
+          { instanceId: "id2", active: true }
+        ]
+      };
+
+      sinon.stub(firebase, "post", function () {
+        return {
+          headers () { return this; },
+          send (msg) {
+            msg.data.should.be.eql("Test message");
+            msg.to.should.match(/id[1-2]/);
+            return this;
+          },
+          end (done) {
+            done({body: "ok"});
+          }
+        };
+      });
+
+      firebaseService.sendMessageToAllActiveUserDevices("Test message", user, function (err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    it("Should return error when message is undefined", function (done) {
+      var user = {
+        email: "user@email.com",
+        firebaseInstanceIds: [
+          { instanceId: "id0", active: false },
+          { instanceId: "id1", active: true },
+          { instanceId: "id9", active: false },
+          { instanceId: "id2", active: true }
+        ]
+      };
+
+      firebaseService.sendMessageToAllActiveUserDevices(null, user, function (err) {
+        err.should.have.property("message", "Message or deviceFirebaseId is empty");
+        done();
+      });
+    });
+
+    it("Should return error when firebaseInstanceId is undefined", function (done) {
+      var user = {
+        email: "user@email.com",
+        firebaseInstanceIds: []
+      };
+
+      firebaseService.sendMessageToAllActiveUserDevices("Test message", user, function (err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+  });
+
 });

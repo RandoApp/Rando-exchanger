@@ -74,7 +74,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
         rando: randoService.buildRando(rando)
       };
 
-      firebaseService.sendMessageToDevices(message, firebaseService.findActiveFirabseIds(user), done);
+      firebaseService.sendMessageToAllActiveUserDevices(message, user, done);
     },
     function fetchStranger (done) {
       logger.trace("[exchanger.putRandoToUserAsync.fetchStranger", "Fetching stranger user: ", rando.email);
@@ -109,7 +109,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
         rando: randoService.buildRando(updatedRando)
       };
 
-      firebaseService.sendMessageToDevices(message, firebaseService.findActiveFirabseIds(user), done);
+      firebaseService.sendMessageToAllActiveUserDevices(message, user, done);
     },
     function fetchRandoFromDBBucket (done) {
       logger.trace("[exchanger.putRandoToUserAsync.fetchRandoFromDBBucket]", "Fetching rando from db.randos");

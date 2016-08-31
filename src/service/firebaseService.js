@@ -51,5 +51,9 @@ module.exports = {
     async.eachLimit(deviceFirebaseIds, 1000, (firebaseId, done) => {
       self.sendMessageToSingleDevice(message, firebaseId, done);
     }, callback);
+  },
+  sendMessageToAllActiveUserDevices (message, user, callback) {
+    var activeDFireBaseIds = this.findActiveFirabseIds(user);
+    this.sendMessageToDevices(message, activeDFireBaseIds, callback);
   }
 };
