@@ -168,7 +168,7 @@ function main () {
       });
     },
     function loadUsers (randos, done) {
-      dbService.fetchUsers(randos, (err, users) => {
+      dbService.fetchUsersForRandos(randos, (err, users) => {
         if (err) {
           return done("Error when fetch users");
         }

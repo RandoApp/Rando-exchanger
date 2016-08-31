@@ -39,40 +39,39 @@ module.exports = {
       return callback(null, randos);
     });
   },
-  fetchUsers (randos, callback) {
+  fetchUsersForRandos (randos, callback) {
     var users = {};
     var self = this;
     async.eachLimit(randos, 30, function (rando, callback) {
-      logger.trace("[dbUtil.fetchUsers]", " Process rando: ", rando.randoId);
-      self.attachUserToRando(rando, users, callback);
+      logger.trace("[dbUtil.fetchUsersForRandos]", " Process rando: ", rando.randoId);
+      self.fetchUser(rando, users, callback);
     }, function (err) {
       if (err) {
-        logger.warn("[dbUtil.fetchUsers]", "Each done with error: ", err);
+        logger.warn("[dbUtil.fetchUsersForRandos]", "Each done with error: ", err);
       } else {
-        logger.warn("[dbUtil.fetchUsers]", "Each done successfully");
+        logger.warn("[dbUtil.fetchUsersForRandos]", "Each done successfully");
       }
       callback(err, users);
     });
   },
-  //TODO Private?
-  attachUserToRando (rando, users, callback) {
+  fetchUser (rando, users, callback) {
     if (users[rando.email]) {
-      logger.debug("[exchanger.attachUserToRando]", "User already in cache");
+      logger.debug("[exchanger.fetchUser]", "User already in cache");
       return callback();
     }
 
     db.user.getByEmail(rando.email, function (err, user) {
       if (err) {
-        logger.debug("[exchanger.attachUserToRando] ", "Error on attachUserToRando: " + err);
+        logger.debug("[exchanger.fetchUser] ", "Error on fetchUser:", err);
         return callback(err);
       }
 
       if (user) {
-        logger.trace("[exchanger.attachUserToRando] ", "Fetched user with email: ", user.email);
+        logger.trace("[exchanger.fetchUser] ", "Fetched user with email:", user.email);
         users[user.email] = user;
         return callback();
       } else {
-        logger.debug("[exchanger.attachUserToRando] ", "User with email: " + rando.email + " not found");
+        logger.debug("[exchanger.fetchUser] ", "User with email:", rando.email, "not found");
         return callback(new Error("User not found"));
       }
     });

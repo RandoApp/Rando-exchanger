@@ -92,7 +92,7 @@ describe("dbService.", function () {
     });
   });
 
-  describe("fetchUsers.", function () {
+  describe("fetchUsersForRandos.", function () {
     afterEach(function() {
       mockUtil.clean(db);
     });
@@ -114,7 +114,7 @@ describe("dbService.", function () {
         {randoId: 3, email: "user1@mail.com"}
       ];
 
-      dbService.fetchUsers(randos, function (err, users) {
+      dbService.fetchUsersForRandos(randos, function (err, users) {
         users.should.be.eql({
           "user1@mail.com": {
             email: "user1@mail.com",
@@ -140,7 +140,7 @@ describe("dbService.", function () {
         {randoId: 3, email: "user1@mail.com"}
       ];
 
-      dbService.fetchUsers(randos, function (err, users) {
+      dbService.fetchUsersForRandos(randos, function (err, users) {
         err.should.be.eql("DB error");
         done();
       });
@@ -157,7 +157,7 @@ describe("dbService.", function () {
         {randoId: 3, email: "user1@mail.com"}
       ];
 
-      dbService.fetchUsers(randos, function (err, users) {
+      dbService.fetchUsersForRandos(randos, function (err, users) {
         err.should.have.property("message", "User not found");
         done();
       });

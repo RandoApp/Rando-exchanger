@@ -14,7 +14,6 @@ module.exports = {
 
     return choosers;
   },
-  //PRIVATE?
   isRandoWasChooser (rando, randos) {
     logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Process rando ", rando.randoId, " for ", randos.length, " randos");
     for (var i = 0; i < randos.length; i++) {
@@ -35,7 +34,6 @@ module.exports = {
       && rando.strangerRandoId 
       && this.isRandoWasChooser(this.findRandoByRandoId(rando.strangerRandoId, randos), randos);
   },
-  //PRIVATE?
   findRandoByRandoId(randoId, randos) {
     if (randoId && randos) {
       for (var i = 0; i < randos.length; i++) {
