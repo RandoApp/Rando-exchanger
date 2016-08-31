@@ -62,7 +62,7 @@ describe("FirebaseService.", function () {
         return {
           headers () { return this; },
           send (msg) {
-            msg.should.be.eql({ data: 'Test message', to: 'id1' });
+            msg.should.be.eql({ data: "Test message", to: "id1" });
             return this;
           },
           end (done) {

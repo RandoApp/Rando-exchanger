@@ -1,6 +1,6 @@
 module.exports = {
   clean (object) {
-    for (method in object) {
+    for (var method in object) {
       if (typeof object[method] === "object") {
         this.clean(object[method]);
       } else if (typeof object[method] === "function") {
