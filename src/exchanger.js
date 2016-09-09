@@ -7,6 +7,7 @@ var printService = require("./service/printService");
 var randoService = require("./service/randoService");
 var dbService = require("./service/dbService");
 var firebaseService = require("./service/firebaseService");
+var consistencyService = require("./service/consistencyService");
 
 global.users = {};
 global.randos = [];
@@ -174,11 +175,15 @@ function main () {
         }
 
         global.users = users;
-        done(null);
+        done();
       });
     },
-    function exchange (randos, users, done) {
-      exchangeRandos(randos, users, done);
+    function checkConsistency (done) {
+      consistencyService.check(global.randos, global.users);
+      done();
+    },
+    function exchange (done) {
+      exchangeRandos(done);
     }
   ], function (err) {
     if (err) {
