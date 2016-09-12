@@ -9,6 +9,6 @@ app:
 exch:
     fetchRandosNumber: 1000
 firebase:
-    key: AIzaSyD1KKzva9ztqYqjxbswHowsD891x8alAZc
+    key: STUB_SERVER_API_KEY
 db:
     url: mongodb://localhost/rando
