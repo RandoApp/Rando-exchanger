@@ -179,8 +179,7 @@ function main () {
       });
     },
     function checkConsistency (done) {
-      consistencyService.check(global.randos, global.users);
-      done();
+      consistencyService.check(global.randos, global.users, done);
     },
     function exchange (done) {
       exchangeRandos(done);
