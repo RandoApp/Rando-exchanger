@@ -53,7 +53,7 @@ module.exports = {
       }
     }
 
-    return brokenRandos
+    return brokenRandos;
   },
   checkThatBucketDoesNotHaveVeryOldRandos (randos) {
     logger.trace("[consistencyService.checkThatBucketDoesNotHaveVeryOldRandos]", "Start check");
