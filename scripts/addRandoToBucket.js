@@ -39,7 +39,7 @@ var rando = {
     delete: 0
 };
 
-console.info("Rando: " + JSON.stringify(rando));
+console.log("Rando: " + JSON.stringify(rando));
 
 db.rando.add(rando, function () {
 	db.disconnect();
