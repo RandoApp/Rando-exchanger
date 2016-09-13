@@ -47,12 +47,13 @@ module.exports = {
     var brokenRandos = [];
 
     for (var i = 0; i < randos.length; i++) {
-      if (randoService.isRandoFullyExchanged (randos[i], randos)) {
+      if (randoService.isRandoFullyExchanged(randos[i], randos)) {
+        logger.debug("[consistencyService.checkThatBucketDoNotHaveFullyExchangedRandos]", "Fully exchanged rando detected:", randos[i].randoId);
         brokenRandos.push({rando: randos[i], discrepancyReason: "Rando is fully exchanged but exists in db bucket", detectedAt: Date.now()});
       }
     }
 
-    return [];
+    return brokenRandos
   },
   checkThatBucketDoesNotHaveVeryOldRandos (randos) {
     logger.trace("[consistencyService.checkThatBucketDoesNotHaveVeryOldRandos]", "Start check");
