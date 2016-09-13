@@ -15,11 +15,11 @@ module.exports = {
         self.moveBrokenRandosToTrashIfNeeded(brokenRandos, randos, done);
       },
       function check2 (done) {
-        brokenRandos = self.checkThatBucketDoNotHaveFullyExchangedRandos(randos);
+        var brokenRandos = self.checkThatBucketDoNotHaveFullyExchangedRandos(randos);
         self.moveBrokenRandosToTrashIfNeeded(brokenRandos, randos, done);
       },
       function check3 (done) {
-        brokenRandos = self.checkThatBucketDoesNotHaveVeryOldRandos(randos);
+        var brokenRandos = self.checkThatBucketDoesNotHaveVeryOldRandos(randos);
         self.moveBrokenRandosToTrashIfNeeded(brokenRandos, randos, done);
       }
     ], function (err) {
