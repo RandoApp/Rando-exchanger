@@ -30,6 +30,8 @@ module.exports = {
       return false;
     }
 
+    logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoFullyExchanged]", "Process rando ", rando.randoId, " for ", randos.length, " randos");
+
     return this.isRandoWasChooser (rando, randos) 
       && rando.strangerRandoId 
       && this.isRandoWasChooser(this.findRandoByRandoId(rando.strangerRandoId, randos), randos);
