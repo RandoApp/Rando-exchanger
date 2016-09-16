@@ -165,11 +165,14 @@ function main () {
         }
 
         global.randos = randos;
-        done(null, randos);
+        done();
       });
     },
-    function loadUsers (randos, done) {
-      dbService.fetchUsersForRandos(randos, (err, users) => {
+    function checkConsistency (done) {
+      consistencyService.checkRandos(global.randos, done);
+    },
+    function loadUsers (done) {
+      dbService.fetchUsersForRandos(global.randos, (err, users) => {
         if (err) {
           return done("Error when fetch users");
         }
@@ -177,9 +180,6 @@ function main () {
         global.users = users;
         done();
       });
-    },
-    function checkConsistency (done) {
-      consistencyService.check(global.randos, global.users, done);
     },
     function exchange (done) {
       exchangeRandos(done);
