@@ -6,7 +6,7 @@ var db = require("randoDB");
 var ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
 
 module.exports = {
-  check (randos, users, callback) {
+  checkRandos (randos, callback) {
     logger.debug("[consistencyService.check]", "Start check");
     var self = this;
     async.waterfall([
