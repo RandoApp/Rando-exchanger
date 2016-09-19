@@ -155,6 +155,54 @@ describe("RandoService.", function () {
     });
   });
 
+  describe("buildLandedRando.", function () {
+    it("Should return clean rando when arg is a big rando", function (done) {
+      var bigRando = {
+        creation: 123,
+        randoId: 12345,
+        imageURL: "http://rando4.me/image/1.png",
+        imageSizeURL: {
+          small: "http://rando4.me/image/small/1.png"
+        },
+        mapURL: "http://rando4.me/map/1.png",
+        mapSizeURL: {
+          small: "http://rando4.me/map/small/1.png"
+        },
+        strangerMapURL: "http://rando4.me/map/2.png",
+        strangerMapSizeURL: {
+          small: "http://rando4.me/map/small/2.png"
+        },
+
+        delete: 1,
+        rating: 3,
+        someMoreField: "12345"
+      };
+
+      var expected = {
+        creation: 123,
+        randoId: 12345,
+        imageURL: "http://rando4.me/image/1.png",
+        imageSizeURL: {
+          small: "http://rando4.me/image/small/1.png"
+        },
+        mapURL: "http://rando4.me/map/2.png",
+        mapSizeURL: {
+          small: "http://rando4.me/map/small/2.png"
+        },
+      };
+
+      var actual = randoService.buildLandedRando(bigRando);
+      expected.should.be.eql(actual);
+      
+      done();
+    });
+
+    it("Should return {} when arg is undefined", function (done) {
+      randoService.buildLandedRando().should.be.empty();
+      done();
+    });
+  });
+
   describe("selectBestRando.", function () {
     it("Should return rando with max of mark when all is ok", function (done) {
       var randos = [
