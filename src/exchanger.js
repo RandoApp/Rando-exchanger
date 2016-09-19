@@ -107,7 +107,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       logger.trace("[exchanger.sendNotificationToStranger]", "Send message with ranodId: ", updatedRando.randoId ," to stranger:", user.email);
       var message = {
         notificationType: "landed",
-        rando: randoService.buildRando(updatedRando)
+        rando: randoService.buildLandedRando(updatedRando)
       };
 
       firebaseService.sendMessageToAllActiveUserDevices(message, user, done);

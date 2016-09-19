@@ -63,6 +63,18 @@ module.exports = {
       mapSizeURL: rando.mapSizeURL
     };
   },
+  buildLandedRando (rando) {
+    if (!rando) {
+      logger.trace("[randoService.buildLandedRando]", "rando is empty => return empty object");
+      return {};
+    }
+
+    logger.trace("[randoService.buildLandedRando] build rando with id: ", rando.randoId);
+    var landedRando = this.buildRando(rando);
+    landedRando.mapURL = rando.strangerMapURL;
+    landedRando.mapSizeURL = rando.strangerMapSizeURL;
+    return landedRando;
+  },
   findFullyExchangedRandos (randos) {
     var fullyExchangedRandos = [];
     if (randos) {
