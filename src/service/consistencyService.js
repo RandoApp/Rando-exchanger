@@ -11,14 +11,10 @@ module.exports = {
     var self = this;
     async.waterfall([
       function check1 (done) {
-        var brokenRandos = self.checkThatStrangerRandoIdIsCorrectLink(randos);
-        self.moveBrokenRandosToTrashIfNeeded(brokenRandos, randos, done);
-      },
-      function check2 (done) {
         var brokenRandos = self.checkThatBucketDoNotHaveFullyExchangedRandos(randos);
         self.moveBrokenRandosToTrashIfNeeded(brokenRandos, randos, done);
       },
-      function check3 (done) {
+      function check2 (done) {
         var brokenRandos = self.checkThatBucketDoesNotHaveVeryOldRandos(randos);
         self.moveBrokenRandosToTrashIfNeeded(brokenRandos, randos, done);
       }
@@ -26,21 +22,6 @@ module.exports = {
       logger.debug("[consistencyService.check]", "Finish check");
       callback(err);
     });
-  },
-  checkThatStrangerRandoIdIsCorrectLink (randos) {
-    logger.trace("[consistencyService.checkThatStrangerRandoIdIsCorrectLink]", "Start check");
-    var brokenRandos = [];
-
-    for (var i = 0; i < randos.length; i++) {
-      if (randos[i].strangerRandoId) {
-        var rando = randoService.findRandoByRandoId(randos[i].strangerRandoId, randos);
-        if (!rando.randoId) {
-          brokenRandos.push({rando: randos[i], discrepancyReason: "Rando has incorrect strangetRandoId", detectedAt: Date.now()});
-        }
-      }
-    }
-
-    return brokenRandos;
   },
   checkThatBucketDoNotHaveFullyExchangedRandos (randos) {
     logger.trace("[consistencyService.checkThatBucketDoNotHaveFullyExchangedRandos]", "Start check");

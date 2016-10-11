@@ -17,7 +17,7 @@ module.exports = {
   isRandoWasChooser (rando, randos) {
     logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Process rando ", rando.randoId, " for ", randos.length, " randos");
     for (var i = 0; i < randos.length; i++) {
-      if (rando.randoId === randos[i].strangerRandoId) {
+      if (rando.choosenRandoId) {
         logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can NOT be chooser");
         return true;
       }
@@ -32,9 +32,7 @@ module.exports = {
 
     logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoFullyExchanged]", "Process rando ", rando.randoId, " for ", randos.length, " randos");
 
-    return this.isRandoWasChooser (rando, randos) 
-      && rando.strangerRandoId 
-      && this.isRandoWasChooser(this.findRandoByRandoId(rando.strangerRandoId, randos), randos);
+    return this.isRandoWasChooser (rando, randos) && rando.strangerRandoId;
   },
   findRandoByRandoId(randoId, randos) {
     if (randoId && randos) {
