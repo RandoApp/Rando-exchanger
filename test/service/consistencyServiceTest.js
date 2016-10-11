@@ -13,7 +13,7 @@ describe("ConsistencyService.", function () {
     it("Should return broken randos when randos has fully exchanged rando", function (done) {
       var randos = [
         {randoId: 1, strangerRandoId: 2},
-        {randoId: 2, choosenRandoId: 1, strangerRandoId: 5},
+        {randoId: 2, chosenRandoId: 1, strangerRandoId: 5},
         {randoId: 3, strangerRandoId: 4},
         {randoId: 4},
         {randoId: 5},
@@ -23,7 +23,7 @@ describe("ConsistencyService.", function () {
 
       brokenRandos.should.have.length(1);
       brokenRandos[0].rando.should.have.property("randoId", 2);
-      brokenRandos[0].rando.should.have.property("choosenRandoId", 1);
+      brokenRandos[0].rando.should.have.property("chosenRandoId", 1);
       brokenRandos[0].rando.should.have.property("strangerRandoId", 5);
       brokenRandos[0].should.have.property("discrepancyReason", "Rando is fully exchanged but exists in db bucket");
       brokenRandos[0].should.have.property("detectedAt");

@@ -9,8 +9,8 @@ describe("RandoService.", function () {
       var randos = [
         { randoId: 1 },
         { randoId: 2, strangerRandoId: 3 },
-        { randoId: 3, choosenRandoId: 2, strangerRandoId: 4 },
-        { randoId: 4, choosenRandoId: 3}
+        { randoId: 3, chosenRandoId: 2, strangerRandoId: 4 },
+        { randoId: 4, chosenRandoId: 3}
       ];
       
       var expected = [
@@ -33,9 +33,9 @@ describe("RandoService.", function () {
 
     it("Should find empty choosers when randos doesn't have choosers", function (done) {
       var randos = [
-        { randoId: 1, choosenRandoId: 3, strangerRandoId: 2  },
-        { randoId: 2, choosenRandoId: 1, strangerRandoId: 3 },
-        { randoId: 3, choosenRandoId: 2, strangerRandoId: 1 }
+        { randoId: 1, chosenRandoId: 3, strangerRandoId: 2  },
+        { randoId: 2, chosenRandoId: 1, strangerRandoId: 3 },
+        { randoId: 3, chosenRandoId: 2, strangerRandoId: 1 }
       ];
 
       randoService.findAllChoosers(randos).should.be.empty();
@@ -48,8 +48,8 @@ describe("RandoService.", function () {
       var randos = [
         { randoId: 1 },
         { randoId: 2, strangerRandoId: 3 },
-        { randoId: 3, choosenRandoId: 2, strangerRandoId: 4 },
-        { randoId: 4, choosenRandoId: 3 }
+        { randoId: 3, chosenRandoId: 2, strangerRandoId: 4 },
+        { randoId: 4, chosenRandoId: 3 }
       ];
       
       randoService.isRandoFullyExchanged({randoId: 3, strangerRandoId: 4}, randos).should.be.false;
@@ -66,9 +66,9 @@ describe("RandoService.", function () {
 
     it("Should return false when randos doesn't have fully exchanged randos", function (done) {
       var randos = [
-        { randoId: 1, choosenRandoId: 3, strangerRandoId: 2 },
-        { randoId: 2, choosenRandoId: 1, strangerRandoId: 3 },
-        { randoId: 3, choosenRandoId: 2, strangerRandoId: 1 }
+        { randoId: 1, chosenRandoId: 3, strangerRandoId: 2 },
+        { randoId: 2, chosenRandoId: 1, strangerRandoId: 3 },
+        { randoId: 3, chosenRandoId: 2, strangerRandoId: 1 }
       ];
 
       randoService.isRandoFullyExchanged(randos).should.be.false;
@@ -81,11 +81,11 @@ describe("RandoService.", function () {
       var randos = [
         { randoId: 1 },
         { randoId: 2, strangerRandoId: 3 },
-        { randoId: 3, choosenRandoId: 2, strangerRandoId: 4 },
-        { randoId: 4, choosenRandoId: 3}
+        { randoId: 3, chosenRandoId: 2, strangerRandoId: 4 },
+        { randoId: 4, chosenRandoId: 3}
       ];
 
-      var expected = [{randoId: 3, choosenRandoId: 2, strangerRandoId: 4}];
+      var expected = [{randoId: 3, chosenRandoId: 2, strangerRandoId: 4}];
       var actual = randoService.findFullyExchangedRandos(randos);
 
       expected.should.be.eql(actual);
@@ -101,9 +101,9 @@ describe("RandoService.", function () {
 
     it("Should return empty array randos doesn't have fully exchanged randos", function (done) {
       var randos = [
-        { randoId: 1, choosenRandoId: 3, strangerRandoId: 2 },
-        { randoId: 2, choosenRandoId: 1, strangerRandoId: 3 },
-        { randoId: 3, choosenRandoId: 2, strangerRandoId: 1 }
+        { randoId: 1, chosenRandoId: 3, strangerRandoId: 2 },
+        { randoId: 2, chosenRandoId: 1, strangerRandoId: 3 },
+        { randoId: 3, chosenRandoId: 2, strangerRandoId: 1 }
       ];
 
       randoService.isRandoFullyExchanged(randos).should.be.empty();

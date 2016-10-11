@@ -17,7 +17,7 @@ module.exports = {
   isRandoWasChooser (rando, randos) {
     logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Process rando ", rando.randoId, " for ", randos.length, " randos");
     for (var i = 0; i < randos.length; i++) {
-      if (rando.choosenRandoId) {
+      if (rando.chosenRandoId) {
         logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can NOT be chooser");
         return true;
       }

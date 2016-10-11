@@ -59,7 +59,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       logger.trace("[exchanger.putRandoToUserAsync.putRandoToUserIn]", "Put rando to user.in");
       logger.data("Rando", rando.randoId, "by", rando.email, "----in--->", user.email);
       user.in.push(rando);
-      chooser.choosenRandoId = rando.randoId;
+      chooser.chosenRandoId = rando.randoId;
       done(null, user);
     },
     function updateUser (user, done) {
