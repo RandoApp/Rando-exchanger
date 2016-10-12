@@ -21,8 +21,20 @@ function processAnomaliesWithIncorrectStrangetRandoId (anomalies) {
   async.forEachLimit(anomalies, 1, function (anomaly, done) {
     async.parallel({
       addToRandoBucket: function (callback) {
-        winston.info("Add rando", anomaly.randoId, "to bucket");
-        db.rando.add(anomaly.rando, callback);
+        winston.info("Add rando", anomaly.rando.randoId, "to bucket");
+        db.rando.add({
+          email: anomaly.rando.email,
+          creation: anomaly.rando.creation,
+          randoId anomaly.rando.randoId,
+          imageURL: anomaly.rando.imageURL,
+          mapURL: anomaly.rando.mapURL,
+          strangerMapURL: anomaly.rando.strangerMapURL,
+          strangerRandoId: anomaly.rando.strangerRandoId,
+          strangerMapSizeURL: anomaly.rando.strangerMapSizeURL,
+          mapSizeURL: anomaly.rando.mapSizeURL,
+          imageSizeURL: anomaly.rando.imageSizeURL,
+          location: anomaly.rando.location
+        }, callback);
       },
       removeFromAnomalies: function (callback) {
         winston.info("Remove anomaly by randoId:", anomaly.rando.randoId);
