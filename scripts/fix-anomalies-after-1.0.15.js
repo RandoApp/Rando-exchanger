@@ -25,7 +25,7 @@ function processAnomaliesWithIncorrectStrangetRandoId (anomalies) {
         db.rando.add({
           email: anomaly.rando.email,
           creation: anomaly.rando.creation,
-          randoId anomaly.rando.randoId,
+          randoId: anomaly.rando.randoId,
           imageURL: anomaly.rando.imageURL,
           mapURL: anomaly.rando.mapURL,
           strangerMapURL: anomaly.rando.strangerMapURL,
