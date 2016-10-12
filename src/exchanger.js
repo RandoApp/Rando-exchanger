@@ -58,7 +58,15 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
     function putRandoToUserIn (user, done) {
       logger.trace("[exchanger.putRandoToUserAsync.putRandoToUserIn]", "Put rando to user.in");
       logger.data("Rando", rando.randoId, "by", rando.email, "----in--->", user.email);
+      chooser.chosenRandoId = rando.randoId;
+      
       user.in.push(rando);
+
+      var updatedRando = randoService.findRandoByRandoId(chooser.randoId, user.out);
+      if (updatedRando) {
+        updatedRando.chosenRandoId = rando.randoId;
+      }
+      
       done(null, user);
     },
     function updateUser (user, done) {
@@ -81,8 +89,8 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       logger.trace("[exchanger.putRandoToUserAsync.fetchStranger", "Fetching stranger user: ", rando.email);
       dbService.fetchUserByEmail(rando.email, done);
     },
-    function putRandoToStrangerOut (user, done) {
-      logger.trace("[exchanger.putRandoToUserAsync.putRandoToStrangerOut]", "Fetching stranger user");
+    function updateRandoInStrangerOut (user, done) {
+      logger.trace("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Fetching stranger user");
       var updatedRando = randoService.findRandoByRandoId(rando.randoId, user.out);
       if (updatedRando) {
         updatedRando.strangerRandoId = chooser.randoId;
@@ -112,22 +120,26 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
 
       firebaseService.sendMessageToAllActiveUserDevices(message, user, done);
     },
-    function fetchRandoFromDBBucket (done) {
-      logger.trace("[exchanger.putRandoToUserAsync.fetchRandoFromDBBucket]", "Fetching rando from db.randos");
-      db.rando.getByRandoId(rando.randoId, done);
-    },
-    function updateRando (randoFromDBBucket, done) {
-      logger.trace("[exchanger.putRandoToUserAsync.updateRando]", "updateRando rando: ", randoFromDBBucket.randoId, " in db.randos");
+    function updateRandoBucket (done) {
+      logger.trace("[exchanger.putRandoToUserAsync.updateRandoBucket]", "updateRandoBucket rando: ", rando.randoId, ", chooser: ", chooser.randoId, " in db.randos");
       
-      randoFromDBBucket.strangerRandoId = chooser.randoId;
-      randoFromDBBucket.strangerMapURL = chooser.mapURL;
-      randoFromDBBucket.strangerMapSizeURL = chooser.mapSizeURL;
+      chooser.chosenRandoId = rando.randoId;
 
       rando.strangerRandoId = chooser.randoId;
       rando.strangerMapURL = chooser.mapURL;
       rando.strangerMapSizeURL = chooser.mapSizeURL;
-      
-      db.rando.update(randoFromDBBucket, done);
+
+      async.parallel({
+        updateRando (updateDone) {
+          db.rando.update(rando, done);
+        },
+        updateChooser (updateDone) {
+          db.rando.update(chooser, done);
+        }
+      }, function (err) {
+        logger.trace("[exchanger.putRandoToUserAsync.updateRandoBucket]", "rando: ", rando.randoId, " and chooser: ", chooser.randoId, " was updated in db.randos");
+        done();
+      });
     },
     function cleanup (done) {
       logger.trace("[exchanger.putRandoToUserAsync.cleanup]", "Cleanup start");
