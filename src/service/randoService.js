@@ -19,9 +19,10 @@ module.exports = {
     if (rando.chosenRandoId) {
       logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can NOT be chooser");
       return true;
+    } else {
+      logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can be chooser");
+      return false;
     }
-    logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Rando ", rando.randoId, " can be chooser");
-    return false;
   },
   isRandoFullyExchanged (rando, randos) {
     if (!rando || !randos) {
