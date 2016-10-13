@@ -123,10 +123,10 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
 
       async.parallel({
         updateRando (updateDone) {
-          db.rando.update(rando, done);
+          db.rando.update(rando, updateDone);
         },
         updateChooser (updateDone) {
-          db.rando.update(chooser, done);
+          db.rando.update(chooser, updateDone);
         }
       }, function (err) {
         logger.trace("[exchanger.putRandoToUserAsync.updateRandoBucket]", "rando: ", rando.randoId, " and chooser: ", chooser.randoId, " was updated in db.randos");
