@@ -5,7 +5,7 @@ module.exports = {
     require("./metrics/excludeRandosThatAlreadyHasStrangerRando"),
     require("./metrics/excludeThemselves"),
     require("./metrics/timeWaitingCorrection"),
-    require("./metrics/preventPairing")
+    require("./metrics/increaseUserEntropy")
   ],
   add (metric) {
     this.metrics.push(metric);
