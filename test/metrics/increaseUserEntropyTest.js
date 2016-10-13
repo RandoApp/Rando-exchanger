@@ -12,16 +12,18 @@ describe("IncreaseUserEntropy.", function () {
         strangerRandoId: 2
       };
 
-      global.users = [{
-        email: "user1@mail.com",
-        in: [{
-          randoId: 876,
-          email: "user876@mail.com",
-        }, {
-          randoId: 777,
-          email: "user2@mail.com",
-        }]
-      }];
+      global.users = {
+        "user1@mail.com": {
+          email: "user1@mail.com",
+          in: [{
+            randoId: 876,
+            email: "user876@mail.com",
+          }, {
+            randoId: 777,
+            email: "user2@mail.com",
+          }]
+        }
+      };
       
       var randoToMark = {
         randoId: 2,
@@ -43,16 +45,18 @@ describe("IncreaseUserEntropy.", function () {
         strangerRandoId: 2
       };
       
-      global.users = [{
-        email: "user1@mail.com",
-        in: [{
-          randoId: 876,
-          email: "user876@mail.com",
-        }, {
-          randoId: 777,
-          email: "user2@mail.com",
-        }]
-      }];
+      global.users = {
+        "user1@mail.com": {
+          email: "user1@mail.com",
+          in: [{
+            randoId: 876,
+            email: "user876@mail.com",
+          }, {
+            randoId: 777,
+            email: "user2@mail.com",
+          }]
+        }
+      };
 
       var randoToMark = {
         randoId: 3,
