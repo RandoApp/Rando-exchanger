@@ -22,19 +22,25 @@ function processAnomaliesWithIncorrectStrangetRandoId (anomalies) {
     async.parallel({
       addToRandoBucket: function (callback) {
         winston.info("Add rando", anomaly.rando.randoId, "to bucket");
-        db.rando.add({
-          email: anomaly.rando.email,
-          creation: anomaly.rando.creation,
-          randoId: anomaly.rando.randoId,
-          imageURL: anomaly.rando.imageURL,
-          mapURL: anomaly.rando.mapURL,
-          strangerMapURL: anomaly.rando.strangerMapURL,
-          strangerRandoId: anomaly.rando.strangerRandoId,
-          strangerMapSizeURL: anomaly.rando.strangerMapSizeURL,
-          mapSizeURL: anomaly.rando.mapSizeURL,
-          imageSizeURL: anomaly.rando.imageSizeURL,
-          location: anomaly.rando.location
-        }, callback);
+          db.rando.getByRandoId(function (err, rando) {
+            if (!err && !rando) {
+              db.rando.add({
+                email: anomaly.rando.email,
+                creation: anomaly.rando.creation,
+                randoId: anomaly.rando.randoId,
+                imageURL: anomaly.rando.imageURL,
+                mapURL: anomaly.rando.mapURL,
+                strangerMapURL: anomaly.rando.strangerMapURL,
+                strangerRandoId: anomaly.rando.strangerRandoId,
+                strangerMapSizeURL: anomaly.rando.strangerMapSizeURL,
+                mapSizeURL: anomaly.rando.mapSizeURL,
+                imageSizeURL: anomaly.rando.imageSizeURL,
+                location: anomaly.rando.location
+              }, callback);
+            } else {
+              winston.info("We have incident when adding to rando bucket. Err: ", err, " rando from bucket", rando);
+            }
+        });
       },
       removeFromAnomalies: function (callback) {
         winston.info("Remove anomaly by randoId:", anomaly.rando.randoId);
