@@ -38,7 +38,8 @@ function processAnomaliesWithIncorrectStrangetRandoId (anomalies) {
                 location: anomaly.rando.location
               }, callback);
             } else {
-              winston.info("We have incident when adding to rando bucket. Err: ", err, " rando from bucket", rando);
+              winston.info("We have incident when adding to rando bucket. Err: ", err, " rando from bucket", rando ? rando.randoId : "");
+              callback();
             }
         });
       },
