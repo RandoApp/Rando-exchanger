@@ -22,7 +22,7 @@ function processAnomaliesWithIncorrectStrangetRandoId (anomalies) {
     async.parallel({
       addToRandoBucket: function (callback) {
         winston.info("Add rando", anomaly.rando.randoId, "to bucket");
-          db.rando.getByRandoId(function (err, rando) {
+          db.rando.getByRandoId(anomaly.rando.randoId, function (err, rando) {
             if (!err && !rando) {
               db.rando.add({
                 email: anomaly.rando.email,
