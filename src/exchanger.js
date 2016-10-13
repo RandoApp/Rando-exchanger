@@ -58,15 +58,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
     function putRandoToUserIn (user, done) {
       logger.trace("[exchanger.putRandoToUserAsync.putRandoToUserIn]", "Put rando to user.in");
       logger.data("Rando", rando.randoId, "by", rando.email, "----in--->", user.email);
-      chooser.chosenRandoId = rando.randoId;
-      
       user.in.push(rando);
-
-      var updatedRando = randoService.findRandoByRandoId(chooser.randoId, user.out);
-      if (updatedRando) {
-        updatedRando.chosenRandoId = rando.randoId;
-      }
-      
       done(null, user);
     },
     function updateUser (user, done) {
