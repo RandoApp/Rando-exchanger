@@ -30,9 +30,9 @@ function getMarkBasedOnLast10Randos (email, randos) {
 function sortRandosByCreation(randos) {
   return randos.sort(function (rando1, rando2) {
     if (rando1.creation < rando2.creation) {
-      return -1;
-    } else if (rando1.creation > rando2.creation) {
       return 1;
+    } else if (rando1.creation > rando2.creation) {
+      return -1;
     } else {
       return 0;
     }
