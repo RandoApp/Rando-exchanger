@@ -10,13 +10,17 @@ module.exports = {
     logger.debug("[consistencyService.check]", "Start check");
     var self = this;
     async.waterfall([
-      function check1 (done) {
+      (done) => {
         var brokenRandos = self.checkThatBucketDoNotHaveFullyExchangedRandos(randos);
         self.moveBrokenRandosToTrashIfNeeded(brokenRandos, randos, done);
       },
-      function check2 (done) {
+      (done) => {
         var brokenRandos = self.checkThatBucketDoesNotHaveVeryOldRandos(randos);
         self.moveBrokenRandosToTrashIfNeeded(brokenRandos, randos, done);
+      },
+      (done) => {
+        var badRandos = self.checkThatRandoDoesNotCotainBadTags(randos);
+        self.moveBrokenRandosToTrashIfNeeded(badRandos, randos, done);
       }
     ], function (err) {
       logger.debug("[consistencyService.check]", "Finish check");
@@ -47,6 +51,22 @@ module.exports = {
     }
 
     return brokenRandos;
+  },
+  checkThatRandoDoesNotCotainBadTags (randos) {
+    logger.trace("[consistencyService.checkThatRandoDoesNotCotainNude]", "Start check");
+    var badRandos = [];
+
+    for (var i = 0; i < randos.length; i++) {
+      if (Array.isArray(randos[i].tags)) {
+        if (randos[i].tags.indexOf("nude") != -1 ) {
+          badRandos.push({rando: randos[i], discrepancyReason: "nude", detectedAt: Date.now()});
+        } else if (randos[i].tags.indexOf("monocolor") != -1 ) {
+          badRandos.push({rando: randos[i], discrepancyReason: "monocolor", detectedAt: Date.now()});
+        }
+      }
+    }
+
+    return badRandos;
   },
   moveBrokenRandosToTrashIfNeeded (brokenRandos, randos, callback) {
     logger.trace("[consistencyService.moveBrokenRandosToTrashIfNeeded]", "BrokenRandos:", brokenRandos.length);
