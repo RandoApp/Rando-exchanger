@@ -19,9 +19,13 @@ module.exports = {
         self.moveBrokenRandosToTrashIfNeeded(brokenRandos, randos, done);
       },
       (done) => {
+        var googleTestDevices = self.checkGoogleTestDevicesIps(randos);
+        self.moveBrokenRandosToTrashIfNeeded(googleTestDevices, randos, done);
+      },
+      (done) => {
         var badRandos = self.checkThatRandoDoesNotCotainBadTags(randos);
-        self.moveBrokenRandosToTrashIfNeeded(badRandos, randos, done);
-      }
+        self.copyBrokenRandosToTrashIfNeeded(badRandos, randos, done);
+      },
     ], function (err) {
       logger.debug("[consistencyService.check]", "Finish check");
       callback(err);
@@ -58,15 +62,27 @@ module.exports = {
 
     for (var i = 0; i < randos.length; i++) {
       if (Array.isArray(randos[i].tags)) {
-        if (randos[i].tags.indexOf("nude") != -1 ) {
-          badRandos.push({rando: randos[i], discrepancyReason: "nude", detectedAt: Date.now()});
-        } else if (randos[i].tags.indexOf("monocolor") != -1 ) {
-          badRandos.push({rando: randos[i], discrepancyReason: "monocolor", detectedAt: Date.now()});
+        var badTag = randos[i].tags.filter( (tag) => { return config.app.badTags.indexOf(tag) != -1 })[0];
+        if (badTag) {
+          badRandos.push({rando: randos[i], discrepancyReason: badTag, detectedAt: Date.now()});
         }
       }
     }
 
     return badRandos;
+  },
+  checkGoogleTestDevicesIps (randos) {
+    logger.trace("[consistencyService.checkGoogleTestDevicesIps]", "Start check");
+    var googleTestDevicesRandos = [];
+    var googleIpsRegex = new Regex(config.app.googleTestDevicesIpRegex);
+
+    for (var i = 0; i < randos.length; i++) {
+      if (googleIpsRegex.test(randos[i].ip)) {
+        googleTestDevicesRandos.push({rando: randos[i], discrepancyReason: "Google test device", detectedAt: Date.now()});
+      }
+    }
+
+    return googleTestDevicesRandos;
   },
   moveBrokenRandosToTrashIfNeeded (brokenRandos, randos, callback) {
     logger.trace("[consistencyService.moveBrokenRandosToTrashIfNeeded]", "BrokenRandos:", brokenRandos.length);
@@ -86,6 +102,26 @@ module.exports = {
         }
       ], function (err) {
         logger.trace("[consistencyService.moveBrokenRandosToTrashIfNeeded]", "Done");
+        eachDone(err);
+      });
+    }, function (err) {
+      callback(err);
+    });
+  },
+  copyBrokenRandosToTrashIfNeeded (brokenRandos, randos, callback) {
+    logger.trace("[consistencyService.copyBrokenRandosToTrashIfNeeded]", "BrokenRandos:", brokenRandos.length);
+    async.forEach(brokenRandos, function (brokenRando, eachDone) {
+      async.waterfall([
+        function saveAnomaly (done) {
+          logger.info("[consistencyService.copyBrokenRandosToTrashIfNeeded]", "Log anomaly in db: ", brokenRando.rando.randoId, "discrepancyReason:", brokenRando.discrepancyReason);
+          db.anomaly.add(brokenRando, done);
+        },
+        function clearRandosInMemory (done) {
+          randoService.removeByRandoId(brokenRando.rando.randoId, randos);
+          done();
+        }
+      ], function (err) {
+        logger.trace("[consistencyService.copyBrokenRandosToTrashIfNeeded]", "Done");
         eachDone(err);
       });
     }, function (err) {
