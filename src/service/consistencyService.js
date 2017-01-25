@@ -57,13 +57,14 @@ module.exports = {
     return brokenRandos;
   },
   checkThatRandoDoesNotCotainBadTags (randos) {
-    logger.trace("[consistencyService.checkThatRandoDoesNotCotainNude]", "Start check");
+    logger.trace("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Start check");
     var badRandos = [];
 
     for (var i = 0; i < randos.length; i++) {
       if (Array.isArray(randos[i].tags)) {
         var badTag = randos[i].tags.filter( (tag) => { return config.app.badTags.indexOf(tag) != -1 })[0];
         if (badTag) {
+          logger.debug("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Bad tag fount: ", badTag);
           badRandos.push({rando: randos[i], discrepancyReason: badTag, detectedAt: Date.now()});
         }
       }
@@ -74,7 +75,7 @@ module.exports = {
   checkGoogleTestDevicesIps (randos) {
     logger.trace("[consistencyService.checkGoogleTestDevicesIps]", "Start check");
     var googleTestDevicesRandos = [];
-    var googleIpsRegex = new Regex(config.app.googleTestDevicesIpRegex);
+    var googleIpsRegex = new RegExp(config.app.googleTestDevicesIpRegex);
 
     for (var i = 0; i < randos.length; i++) {
       logger.trace("[consistencyService.checkGoogleTestDevicesIps]", "Check ip: ", randos[i].ip);
