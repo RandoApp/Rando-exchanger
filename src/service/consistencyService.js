@@ -130,10 +130,6 @@ module.exports = {
 
           logger.info("[consistencyService.copyBrokenRandosToTrashIfNeeded]", "Log anomaly in db: ", brokenRando.rando.randoId, "discrepancyReason:", brokenRando.discrepancyReason);
           db.anomaly.add(brokenRando, done);
-        },
-        function clearRandosInMemory (done) {
-          randoService.removeByRandoId(brokenRando.rando.randoId, randos);
-          done();
         }
       ], function (err) {
         logger.trace("[consistencyService.copyBrokenRandosToTrashIfNeeded]", "Done");
