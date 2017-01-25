@@ -15,8 +15,7 @@
     "winston": "2.2.0",
     "async": "2.0.1",
     "unirest": "0.5.0",
-    "randoDB": "RandoApp/Rando-db",
-    "randoRecognition": "RandoApp/Rando-recognition"
+    "randoDB": "RandoApp/Rando-db"
   },
   "devDependencies": {
     "mocha": "2.5.3",
