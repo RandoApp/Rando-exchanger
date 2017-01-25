@@ -77,11 +77,13 @@ module.exports = {
     var googleIpsRegex = new Regex(config.app.googleTestDevicesIpRegex);
 
     for (var i = 0; i < randos.length; i++) {
+      logger.trace("[consistencyService.checkGoogleTestDevicesIps]", "Check ip: ", randos[i].ip);
       if (googleIpsRegex.test(randos[i].ip)) {
         googleTestDevicesRandos.push({rando: randos[i], discrepancyReason: "Google test device", detectedAt: Date.now()});
       }
     }
 
+    logger.trace("[consistencyService.checkGoogleTestDevicesIps]", "Return badRandos: ", googleTestDevicesRandos);
     return googleTestDevicesRandos;
   },
   moveBrokenRandosToTrashIfNeeded (brokenRandos, randos, callback) {
