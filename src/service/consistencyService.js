@@ -59,10 +59,12 @@ module.exports = {
   },
   checkThatRandoDoesNotCotainBadTags (randos) {
     logger.trace("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Start check");
+    logger.trace("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Following bad tags will be used:", config.app.badTags);
     var badRandos = [];
 
     for (var i = 0; i < randos.length; i++) {
       if (Array.isArray(randos[i].tags)) {
+        logger.trace("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Check tags:", randos[i].tags);
         var badTag = randos[i].tags.filter( (tag) => { return config.app.badTags.indexOf(tag) != -1 })[0];
         if (badTag) {
           logger.debug("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Bad tag fount: ", badTag);
