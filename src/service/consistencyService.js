@@ -116,9 +116,18 @@ module.exports = {
   },
   copyBrokenRandosToTrashIfNeeded (brokenRandos, randos, callback) {
     logger.trace("[consistencyService.copyBrokenRandosToTrashIfNeeded]", "BrokenRandos:", brokenRandos.length);
+
     async.forEach(brokenRandos, function (brokenRando, eachDone) {
       async.waterfall([
-        function saveAnomaly (done) {
+        function doesThisBadRandoAlreadyInAnomalies (done) {
+          db.anomaly.getByRandoId(brokenRando.rando.randoId, done);
+        },
+        function saveAnomaly (anomaly, done) {
+          if (anomaly) {
+            //skip save to anomaly, beacause this bad rando is already in anomalies
+            return done();
+          }
+
           logger.info("[consistencyService.copyBrokenRandosToTrashIfNeeded]", "Log anomaly in db: ", brokenRando.rando.randoId, "discrepancyReason:", brokenRando.discrepancyReason);
           db.anomaly.add(brokenRando, done);
         },
