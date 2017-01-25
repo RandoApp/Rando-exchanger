@@ -1,3 +1,4 @@
+var config = require("config");
 var logger = require("../log/logger");
 var async = require("async");
 var randoService = require("./randoService");
