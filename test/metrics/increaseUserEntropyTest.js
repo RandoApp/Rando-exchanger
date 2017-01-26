@@ -17,9 +17,11 @@ describe("IncreaseUserEntropy.", function () {
           email: "user1@mail.com",
           in: [{
             randoId: 876,
+            creation: 2,
             email: "user876@mail.com",
           }, {
             randoId: 777,
+            creation: 5,
             email: "user2@mail.com",
           }]
         }
@@ -34,7 +36,7 @@ describe("IncreaseUserEntropy.", function () {
 
       var mark = metric.calculate(randoChooser, randoToMark, randos);
       
-      mark.should.be.eql(-5);
+      mark.should.be.eql(-100);
       done();
     });
 
