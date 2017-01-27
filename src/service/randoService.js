@@ -65,7 +65,7 @@ module.exports = {
             return detectedTag;
           }
         }
-      }).filter(tag => tag);
+      }).filter(tag => tag) : [];
     };
   },
   buildLandedRando (rando) {
