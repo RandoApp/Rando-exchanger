@@ -65,7 +65,7 @@ module.exports = {
       if (Array.isArray(randos[i].tags)) {
         logger.trace("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Check tags:", randos[i].tags);
 
-        for (tag in config.app.tags) {
+        for (var tag in config.app.tags) {
           if (randos[i].tags.indexOf(tag) != -1) {
             logger.debug("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Bad tag found: ", tag);
             badRandos.push({rando: randos[i], discrepancyReason: tag, detectedAt: Date.now()});
