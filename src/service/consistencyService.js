@@ -96,7 +96,7 @@ module.exports = {
     logger.trace("[consistencyService.processRandosWithTags]", "BrokenRandos:", brokenRandos.length);
     var self = this;
     async.forEach(brokenRandos, function (brokenRando, eachDone) {
-      var action = config.app.tag[brokenRando.discrepancyReason];
+      var action = config.app.tags[brokenRando.discrepancyReason];
       logger.debug("[consistencyService.processRandosWithTags]", "Apply action:", action);
       if (typeof self[action] === "function" ) {
         self[action](brokenRando, randos, eachDone);
