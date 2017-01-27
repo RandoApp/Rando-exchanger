@@ -67,7 +67,7 @@ module.exports = {
 
         for (tag in config.app.tags) {
           if (randos[i].tags.indexOf(tag) != -1) {
-            logger.debug("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Bad tag fount: ", tag);
+            logger.debug("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Bad tag found: ", tag);
             badRandos.push({rando: randos[i], discrepancyReason: tag, detectedAt: Date.now()});
             break;
           }
@@ -96,7 +96,7 @@ module.exports = {
     logger.trace("[consistencyService.processRandosWithTags]", "BrokenRandos:", brokenRandos.length);
     var self = this;
     async.forEach(brokenRandos, function (brokenRando, eachDone) {
-      var action = config.app.tag[brokenRandos[i].discrepancyReason];
+      var action = config.app.tag[brokenRando.discrepancyReason];
       logger.debug("[consistencyService.processRandosWithTags]", "Apply action:", action);
       if (typeof self[action] === "function" ) {
         self[action](brokenRando, randos, eachDone);
