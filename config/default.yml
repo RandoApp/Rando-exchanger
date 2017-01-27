@@ -1,4 +1,7 @@
 app:
+    detectedTagMap:
+        unwanted: 
+            - monocolor
     tags:
         nude: copyToAnomaly
         monocolor: moveToAnomaly

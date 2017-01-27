@@ -57,7 +57,15 @@ module.exports = {
       imageURL: rando.imageURL,
       imageSizeURL: rando.imageSizeURL,
       mapURL: rando.mapURL,
-      mapSizeURL: rando.mapSizeURL
+      mapSizeURL: rando.mapSizeURL,
+      //1.0.19+
+      detected: Array.isArray(rando.tags) ? rando.tags.map(tag => {
+        for (detectedTag in config.app.detectedTagMap) {
+          if (config.app.detectedTagMap[detectedTag].indexOf(tag) != -1) {
+            return detectedTag;
+          }
+        }
+      }).filter(tag => tag);
     };
   },
   buildLandedRando (rando) {
@@ -70,6 +78,8 @@ module.exports = {
     var landedRando = this.buildRando(rando);
     landedRando.mapURL = rando.strangerMapURL;
     landedRando.mapSizeURL = rando.strangerMapSizeURL;
+    delete landedRando.detected;
+
     return landedRando;
   },
   findFullyExchangedRandos (randos) {
