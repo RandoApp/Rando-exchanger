@@ -25,7 +25,7 @@ module.exports = {
       },
       (done) => {
         var badRandos = self.checkThatRandoDoesNotCotainBadTags(randos);
-        self.copyBrokenRandosToTrashIfNeeded(badRandos, randos, done);
+        self.processRandosWithTags(badRandos, randos, done);
       },
     ], function (err) {
       logger.debug("[consistencyService.check]", "Finish check");
@@ -59,16 +59,18 @@ module.exports = {
   },
   checkThatRandoDoesNotCotainBadTags (randos) {
     logger.trace("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Start check");
-    logger.trace("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Following bad tags will be used:", config.app.badTags);
     var badRandos = [];
 
     for (var i = 0; i < randos.length; i++) {
       if (Array.isArray(randos[i].tags)) {
         logger.trace("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Check tags:", randos[i].tags);
-        var badTag = randos[i].tags.filter( (tag) => { return config.app.badTags.indexOf(tag) != -1 })[0];
-        if (badTag) {
-          logger.debug("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Bad tag fount: ", badTag);
-          badRandos.push({rando: randos[i], discrepancyReason: badTag, detectedAt: Date.now()});
+
+        for (var tag in config.app.tags) {
+          if (randos[i].tags.indexOf(tag) !== -1) {
+            logger.debug("[consistencyService.checkThatRandoDoesNotCotainBadTags]", "Bad tag found: ", tag);
+            badRandos.push({rando: randos[i], discrepancyReason: tag, detectedAt: Date.now()});
+            break;
+          }
         }
       }
     }
@@ -90,51 +92,83 @@ module.exports = {
     logger.trace("[consistencyService.checkGoogleTestDevicesIps]", "Return badRandos: ", googleTestDevicesRandos);
     return googleTestDevicesRandos;
   },
+  processRandosWithTags (brokenRandos, randos, callback) {
+    logger.trace("[consistencyService.processRandosWithTags]", "BrokenRandos:", brokenRandos.length);
+    var self = this;
+    async.forEach(brokenRandos, function (brokenRando, eachDone) {
+      var action = config.app.tags[brokenRando.discrepancyReason];
+      logger.debug("[consistencyService.processRandosWithTags]", "Apply action:", action);
+      if (typeof self[action] === "function" ) {
+        self[action](brokenRando, randos, eachDone);
+      }
+    }, function (err) {
+      callback(err);
+    });
+  },
   moveBrokenRandosToTrashIfNeeded (brokenRandos, randos, callback) {
     logger.trace("[consistencyService.moveBrokenRandosToTrashIfNeeded]", "BrokenRandos:", brokenRandos.length);
+    var self = this;
     async.forEach(brokenRandos, function (brokenRando, eachDone) {
-      async.waterfall([
-        function removeRandoFromBucket (done) {
-          logger.info("[consistencyService.moveBrokenRandosToTrashIfNeeded]", "Delete broken rando from db bucket: ", brokenRando.rando.randoId);
-          db.rando.removeById(brokenRando.rando.randoId, done);
-        },
-        function saveAnomaly (done) {
-          logger.info("[consistencyService.moveBrokenRandosToTrashIfNeeded]", "Log anomaly in db: ", brokenRando.rando.randoId, "discrepancyReason:", brokenRando.discrepancyReason);
-          db.anomaly.add(brokenRando, done);
-        },
-        function clearRandosInMemory (done) {
-          randoService.removeByRandoId(brokenRando.rando.randoId, randos);
-          done();
-        }
-      ], function (err) {
-        logger.trace("[consistencyService.moveBrokenRandosToTrashIfNeeded]", "Done");
-        eachDone(err);
-      });
+      self.moveToAnomaly(brokenRando, randos, eachDone);
     }, function (err) {
+      callback(err);
+    });
+  },
+  moveToAnomaly (brokenRando, randos, callback) {
+    logger.debug("[consistencyService.moveToAnomaly]", "Move anomaly with randoId:", brokenRando.rando.randoId);
+    async.waterfall([
+      function removeRandoFromBucket (done) {
+        logger.info("[consistencyService.moveToAnomaly]", "Delete broken rando from db bucket: ", brokenRando.rando.randoId);
+        db.rando.removeById(brokenRando.rando.randoId, done);
+      },
+      function doesThisBadRandoAlreadyInAnomalies (done) {
+        db.anomaly.getByRandoId(brokenRando.rando.randoId, done);
+      },
+      function saveAnomaly (anomaly, done) {
+        if (anomaly) {
+          logger.info("[consistencyService.moveToAnomaly]", "Anomaly with randoId:", brokenRando.rando.randoId, " already in anomalies. Skip saving to anomalies");
+          //skip save to anomaly, beacause this bad rando is already in anomalies
+          return done();
+        }
+
+        logger.info("[consistencyService.moveToAnomaly]", "Log anomaly in db: ", brokenRando.rando.randoId, "discrepancyReason:", brokenRando.discrepancyReason);
+        db.anomaly.add(brokenRando, done);
+      },
+      function clearRandoInMemory (done) {
+        randoService.removeByRandoId(brokenRando.rando.randoId, randos);
+        done();
+      }
+    ], function (err) {
+      logger.trace("[consistencyService.moveToAnomaly]", "Done");
+      callback(err);
+    });
+  },
+  copyToAnomaly (brokenRando, randos, callback) {
+    logger.debug("[consistencyService.copyToAnomaly]", "Copy anomaly with randoId:", brokenRando.rando.randoId);
+    async.waterfall([
+      function doesThisBadRandoAlreadyInAnomalies (done) {
+        db.anomaly.getByRandoId(brokenRando.rando.randoId, done);
+      },
+      function saveAnomaly (anomaly, done) {
+        if (anomaly) {
+          //skip save to anomaly, beacause this bad rando is already in anomalies
+          return done();
+        }
+
+        logger.info("[consistencyService.copyToAnomaly]", "Log anomaly in db: ", brokenRando.rando.randoId, "discrepancyReason:", brokenRando.discrepancyReason);
+        db.anomaly.add(brokenRando, done);
+      }
+    ], function (err) {
+      logger.trace("[consistencyService.copyToAnomaly]", "Done");
       callback(err);
     });
   },
   copyBrokenRandosToTrashIfNeeded (brokenRandos, randos, callback) {
     logger.trace("[consistencyService.copyBrokenRandosToTrashIfNeeded]", "BrokenRandos:", brokenRandos.length);
+    var self = this;
 
     async.forEach(brokenRandos, function (brokenRando, eachDone) {
-      async.waterfall([
-        function doesThisBadRandoAlreadyInAnomalies (done) {
-          db.anomaly.getByRandoId(brokenRando.rando.randoId, done);
-        },
-        function saveAnomaly (anomaly, done) {
-          if (anomaly) {
-            //skip save to anomaly, beacause this bad rando is already in anomalies
-            return done();
-          }
-
-          logger.info("[consistencyService.copyBrokenRandosToTrashIfNeeded]", "Log anomaly in db: ", brokenRando.rando.randoId, "discrepancyReason:", brokenRando.discrepancyReason);
-          db.anomaly.add(brokenRando, done);
-        }
-      ], function (err) {
-        logger.trace("[consistencyService.copyBrokenRandosToTrashIfNeeded]", "Done");
-        eachDone(err);
-      });
+      self.copyToAnomaly(brokenRando, randos, eachDone);
     }, function (err) {
       callback(err);
     });
