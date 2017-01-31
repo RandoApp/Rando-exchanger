@@ -1,4 +1,5 @@
 var logger = require("../log/logger");
+var config = require("config");
 
 module.exports = {
   findAllChoosers (randos) {
@@ -60,8 +61,8 @@ module.exports = {
       mapSizeURL: rando.mapSizeURL,
       //1.0.19+
       detected: Array.isArray(rando.tags) ? rando.tags.map(tag => {
-        for (detectedTag in config.app.detectedTagMap) {
-          if (config.app.detectedTagMap[detectedTag].indexOf(tag) != -1) {
+        for (var detectedTag in config.app.detectedTagMap) {
+          if (config.app.detectedTagMap[detectedTag].indexOf(tag) !== -1) {
             return detectedTag;
           }
         }
