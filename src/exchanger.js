@@ -120,7 +120,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
 
       firebaseService.sendMessageToAllActiveUserDevices(message, user, done);
     },
-    function updateRandoInStrangerOut (user, done) {
+    function updateRandoInStrangerOut (done) {
       var user = global.users[rando.email];
       logger.trace("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Update rando in stranger out");
       var updatedRando = randoService.findRandoByRandoId(rando.randoId, user.out);
