@@ -164,9 +164,9 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       async.parallel({
         updateRando (updateDone) {
           db.rando.updateRandoProperties(rando.randoId, {
-            strangerRandoId: chooser.randoId;
-            strangerMapURL: chooser.mapURL;
-            strangerMapSizeURL: chooser.mapSizeURL;
+            strangerRandoId: chooser.randoId,
+            strangerMapURL: chooser.mapURL,
+            strangerMapSizeURL: chooser.mapSizeURL
           }, updateDone);
         },
         updateChooser (updateDone) {
