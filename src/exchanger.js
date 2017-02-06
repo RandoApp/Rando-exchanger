@@ -82,6 +82,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
 
       db.exchangeLog.add(global.exchangeLog, function (err) {
         if (err) {
+          logger.trace("[exchanger.exchangeRandos]", "Cannot save following exchangeLog:", global.exchangeLog);
           logger.warn("[exchanger.exchangeRandos]", "Cannot save exchangeLog, because:", err);
         }
 
