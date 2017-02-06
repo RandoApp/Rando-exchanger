@@ -57,7 +57,7 @@ module.exports = {
         finalMarks[id] += marks[i][id];
       }
     }
-    logger.info("[metrics.reduceMarks]", "Final marks for chooser", chooser.randoId, " ===>", finalMarks);
+    logger.debug("[metrics.reduceMarks]", "Final marks for chooser", chooser.randoId, " ===>", finalMarks);
     return finalMarks;
   },
   applyMarks (marks, randos) {
