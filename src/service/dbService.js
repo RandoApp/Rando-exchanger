@@ -23,7 +23,7 @@ module.exports = {
   fetchUsersForRandos (randos, callback) {
     var users = {};
     var self = this;
-    async.eachLimit(randos, 30, function (rando, callback) {
+    async.eachLimit(randos, 1, function (rando, callback) {
       logger.trace("[dbUtil.fetchUsersForRandos]", " Process rando: ", rando.randoId);
       self.fetchUser(rando, users, callback);
     }, function (err) {
