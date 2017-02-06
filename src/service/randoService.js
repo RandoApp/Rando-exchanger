@@ -117,7 +117,6 @@ module.exports = {
     var survivedUsers = randos.map(rando => rando.email);
     for (var user in users) {
       if (survivedUsers.indexOf(user) === -1) {
-        console.log("Deleteing" + user)
         delete users[user];
       }
     }
