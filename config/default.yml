@@ -5,7 +5,7 @@ app:
     tags:
         nude: copyToAnomaly
         monocolor: moveToAnomaly
-    googleTestDevicesIpRegex: (^108\.177\.6\.[0-9]$)|(^108\.177\.6\.1[0-9]$)|(^108\.177\.6\.2[0-4]$)|(^104\.196\.0\.[0-9]$)|(^104\.196\.0\.1[0-6]$)
+    googleTestDevicesIpRegex: (^108\.177\.6\.[0-9]+$)|(^104\.196\.[0-9]+\.[0-9]+$)
     log:
         folder: logs
         file: rando-exchanger.log

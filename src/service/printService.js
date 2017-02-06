@@ -11,11 +11,11 @@ module.exports = {
         );
       }
     }
-    logger.info("[printUtil.printChooser] Choosers:", printableChoosers);
+    logger.debug("[printUtil.printChooser] Choosers:", printableChoosers);
   },
   printMetrics (randos, chooser) {
     if (!chooser) {
-      return logger.info("[printUtil.printMetrics] Metrics[chooser EMPTY]!!!");
+      return logger.debug("[printUtil.printMetrics] Metrics[chooser EMPTY]!!!");
     }
 
     var metrics = [];
@@ -27,6 +27,6 @@ module.exports = {
         });
       }
     }
-    logger.info("[printUtil.printMetrics]", "Metrics[chooser", chooser.randoId, "]:", metrics);
+    logger.debug("[printUtil.printMetrics]", "Metrics[chooser", chooser.randoId, "]:", metrics);
   }
 };

@@ -107,6 +107,20 @@ module.exports = {
     }
     return {};
   },
+  removeByRandoIds (randoIds, randos) {
+    var self = this;
+    randoIds.forEach(rando => {
+      self.removeByRandoId(rando, randos);
+    });
+  },
+  syncUsersWithRandos (users, randos) {
+    var survivedUsers = randos.map(rando => rando.email);
+    for (var user in users) {
+      if (survivedUsers.indexOf(user) === -1) {
+        delete users[user];
+      }
+    }
+  },
   selectBestRando (randos) {
     if (!randos) {
       return {};

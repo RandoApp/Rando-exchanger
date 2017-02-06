@@ -31,6 +31,7 @@ module.exports = {
     logger.trace("[firebase.sendMessageToSingleDevice]", "Start sending message");
 
     if (!message || !deviceFirebaseId) {
+      logger.warn("[firebase.sendMessageToSingleDevice]", "Cannot send message because Message or deviceFirebaseId is empty");
       return callback(new Error("Message or deviceFirebaseId is empty"));
     }
 

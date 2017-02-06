@@ -11,11 +11,32 @@ var consistencyService = require("./service/consistencyService");
 
 global.users = {};
 global.randos = [];
+global.exchangeLog = {
+  metrics: []
+};
 
 function exchangeRandos (callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
 
   var choosers = randoService.findAllChoosers(global.randos);
+
+  global.exchangeLog.choosers = choosers.map(rando => {
+    return {
+      email: rando.email,
+      randoId: rando.randoId,
+      creation: rando.creation
+    };
+  });
+
+  global.exchangeLog.randos = global.randos.map(rando => {
+    return {
+      email: rando.email,
+      randoId: rando.randoId,
+      chosenRandoId: rando.chosenRandoId,
+      creation: rando.creation
+    };
+  });
+
   printService.printChooser(choosers);
 
   async.eachSeries(choosers, function (chooser, done) {
@@ -39,6 +60,10 @@ function exchangeRandos (callback) {
       return;
     }
 
+    global.exchangeLog.chooserId = chooser.randoId;
+    global.exchangeLog.choosenId = bestRando.randoId;
+    
+
     logger.trace("[exchanger.exchangeRandos]", "Trying put bestRando", bestRando.randoId ,"to user", chooser.email);
     putRandoToUserAsync(chooser, bestRando, global.randos, done);
 
@@ -52,28 +77,49 @@ function exchangeRandos (callback) {
 function putRandoToUserAsync (chooser, rando, randos, callback) {
   logger.trace("[exchanger.putRandoToUserAsync]", "Trying put rando to user in db");
   async.waterfall([
-    function fetchUser (done) {
-      dbService.fetchUserByEmail(chooser.email, done);
+    function saveExchangeLog (done) {
+      global.exchangeLog.exchangedAt = Date.now();
+
+      db.exchangeLog.add(global.exchangeLog, function (err) {
+        if (err) {
+          logger.trace("[exchanger.exchangeRandos]", "Cannot save following exchangeLog:", global.exchangeLog);
+          logger.warn("[exchanger.exchangeRandos]", "Cannot save exchangeLog, because:", err);
+        }
+
+        global.exchangeLog = {
+          metrics: []
+        };
+        done();
+      });
     },
-    function putRandoToUserIn (user, done) {
+    function putRandoToUserIn (done) {
+      var user = global.users[chooser.email];
       logger.trace("[exchanger.putRandoToUserAsync.putRandoToUserIn]", "Put rando to user.in");
       logger.data("Rando", rando.randoId, "by", rando.email, "----in--->", user.email);
       
       var chooserOnUser = randoService.findRandoByRandoId(chooser.randoId, user.out);
       if (chooserOnUser) {
         chooserOnUser.chosenRandoId = rando.randoId;
+        user.in.push(rando);
+        async.parallel([
+          (updateDone) => {
+            db.user.updateOutRandoProperties(user.email, chooser.randoId, {chosenRandoId: rando.randoId}, updateDone);
+          },
+          (updateDone) => {
+            db.user.addRandoToUserInByEmail(user.email, rando, updateDone);
+          }
+        ], (err) => {
+          if (err) {
+            logger.err("[exchanger.putRandoToUserAsync.putRandoToUserIn]", "Cannot add rando to user in by email or update out rando properties because:", err);
+            return done(err);
+          }
+          return done(null, user);
+        });
+      } else {
+        var err = new Error("Incorrect state: chooserOnUser not found");
+        logger.err("[exchanger.putRandoToUserAsync.putRandoToUserIn]", "Cannot putRandoToUserIn, because:", err);
+        return done(err);
       }
-
-      user.in.push(rando);
-
-      done(null, user);
-    },
-    function updateUser (user, done) {
-      logger.trace("[exchanger.putRandoToUserAsync.updateUser]", "Updating user");
-      db.user.update(user, function (err) {
-        global.users[user.email] = user;
-        done(err, user);
-      });
     },
     function sendNotificationToUser (user, done) {
       logger.trace("[exchanger.sendNotificationToUser]", "Send message with ranodId: ", rando.randoId ," to user:", user.email);
@@ -84,31 +130,34 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
 
       firebaseService.sendMessageToAllActiveUserDevices(message, user, done);
     },
-    function fetchStranger (done) {
-      logger.trace("[exchanger.putRandoToUserAsync.fetchStranger", "Fetching stranger user: ", rando.email);
-      dbService.fetchUserByEmail(rando.email, done);
-    },
-    function updateRandoInStrangerOut (user, done) {
-      logger.trace("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Fetching stranger user");
+    function updateRandoInStrangerOut (done) {
+      var user = global.users[rando.email];
+      logger.trace("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Update rando in stranger out");
       var updatedRando = randoService.findRandoByRandoId(rando.randoId, user.out);
       if (updatedRando) {
+
         updatedRando.strangerRandoId = chooser.randoId;
         updatedRando.strangerMapURL = chooser.mapURL;
         updatedRando.strangerMapSizeURL = chooser.mapSizeURL;
 
-        logger.data("Rando", rando.randoId, "by", user.email, " ---landed--to--user--->", chooser.email, "because his rando", chooser.randoId); 
-        done(null, user, updatedRando);
+        db.user.updateOutRandoProperties(user.email, rando.randoId, {
+          strangerRandoId: chooser.randoId,
+          strangerMapURL: chooser.mapURL,
+          strangerMapSizeURL: chooser.mapSizeURL
+        }, (err) => {
+          if (err) {
+            logger.err("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Cannot updateRandoInStrangerOut because:", err);
+            return done(err);
+          }
+          logger.data("Rando", rando.randoId, "by", user.email, " ---landed--to--user--->", chooser.email, "because his rando", chooser.randoId); 
+          return done(null, user, updatedRando);
+        });
+
       } else {
-        logger.err("INCORRECT STATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        done("incorrect state");
+        var err = new Error("Incorrect state: updatedRando not found");
+        logger.err("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Cannot putRandoToUserIn, because:", err);
+        return done(err);
       }
-    },
-    function updateStranger (user, updatedRando, done) {
-      logger.trace("[exchanger.putRandoToUserAsync.updateStranger]", "Updating stranger");
-      db.user.update(user, function (err) {
-        global.users[user.email] = user;
-        done(err, user, updatedRando);
-      });
     },
     function sendNotificationToStranger (user, updatedRando, done) {
       logger.trace("[exchanger.sendNotificationToStranger]", "Send message with ranodId: ", updatedRando.randoId ," to stranger:", user.email);
@@ -121,7 +170,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
     },
     function updateRandoBucket (done) {
       logger.trace("[exchanger.putRandoToUserAsync.updateRandoBucket]", "updateRandoBucket rando: ", rando.randoId, ", chooser: ", chooser.randoId, " in db.randos");
-      
+
       chooser.chosenRandoId = rando.randoId;
 
       rando.strangerRandoId = chooser.randoId;
@@ -130,12 +179,16 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
 
       async.parallel({
         updateRando (updateDone) {
-          db.rando.update(rando, updateDone);
+          db.rando.updateRandoProperties(rando.randoId, {
+            strangerRandoId: chooser.randoId,
+            strangerMapURL: chooser.mapURL,
+            strangerMapSizeURL: chooser.mapSizeURL
+          }, updateDone);
         },
         updateChooser (updateDone) {
-          db.rando.update(chooser, updateDone);
+          db.rando.updateRandoProperties(chooser.randoId, {chosenRandoId: rando.randoId}, updateDone);
         }
-      }, function (err) {
+      }, (err) => {
         logger.trace("[exchanger.putRandoToUserAsync.updateRandoBucket]", "rando: ", rando.randoId, " and chooser: ", chooser.randoId, " was updated in db.randos");
         done();
       });
@@ -144,12 +197,12 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       logger.trace("[exchanger.putRandoToUserAsync.cleanup]", "Cleanup start");
 
       var fullyExchangedRandos = randoService.findFullyExchangedRandos(randos);
-      async.forEach(fullyExchangedRandos, function (rando, eachDone) {
-        db.rando.removeById(rando.randoId, function () {
-          randoService.removeByRandoId(rando.randoId, global.randos);
-          eachDone();
-        });
-      }, done);
+      var randoIds = fullyExchangedRandos.map(r => r.randoId);
+
+      randoService.removeByRandoIds(randoIds, global.randos);
+      randoService.syncUsersWithRandos(global.users, global.randos);
+
+      db.rando.removeByRandoIds(randoIds, done);
     }
   ], function (err) {
     if (err) {
