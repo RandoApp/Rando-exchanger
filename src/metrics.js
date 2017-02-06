@@ -19,6 +19,7 @@ module.exports = {
     var marks = {};
     for (var i = 0; i < this.metrics.length; i++) {
       marks = this.calculateForMetric(this.metrics[i], randoChooser, randos);
+
       logger.debug("Metric ", this.metrics[i].name, " result: ", marks);
       allMarks.push(marks);
     }
@@ -30,7 +31,14 @@ module.exports = {
     var marks = {};
     for (var i = 0; i < randos.length; i++) {
       marks[randos[i].randoId] = metric.calculate(randoChooser, randos[i], randos);
+
+      global.exchangeLog.metrics.push({
+        metrica: metric,
+        randoId: randos[i].randoId,
+        mark: marks[randos[i].randoId]
+      });
     }
+
     return marks;
   },
   reduceMarks (marks, chooser) {
