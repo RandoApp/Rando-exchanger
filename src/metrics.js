@@ -32,8 +32,8 @@ module.exports = {
     for (var i = 0; i < randos.length; i++) {
       marks[randos[i].randoId] = metric.calculate(randoChooser, randos[i], randos);
 
-      global.exchangeLog.metrics.push({
-        metrica: metric,
+      global.exchangeL og.metrics.push({
+        metrica: metric.name,
         randoId: randos[i].randoId,
         mark: marks[randos[i].randoId]
       });
