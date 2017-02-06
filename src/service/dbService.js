@@ -41,7 +41,7 @@ module.exports = {
       return callback();
     }
 
-    db.user.getLightUserByToken(rando.email, function (err, user) {
+    db.user.getLightUserByEmail(rando.email, function (err, user) {
       if (err) {
         logger.debug("[exchanger.fetchUser] ", "Error on fetchUser:", err);
         return callback(err);
