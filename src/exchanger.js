@@ -64,7 +64,6 @@ function exchangeRandos (callback) {
     global.exchangeLog.choosenId = bestRando.randoId;
     
 
-
     logger.trace("[exchanger.exchangeRandos]", "Trying put bestRando", bestRando.randoId ,"to user", chooser.email);
     putRandoToUserAsync(chooser, bestRando, global.randos, done);
 
@@ -83,7 +82,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
 
       db.exchangeLog.add(global.exchangeLog, function (err) {
         if (err) {
-          logger.warn("[exchanger.exchangeRandos]", "Cannot save to exchangeLog, because:", global.exchangeLog);
+          logger.warn("[exchanger.exchangeRandos]", "Cannot save exchangeLog, because:", err);
         }
 
         global.exchangeLog = {
