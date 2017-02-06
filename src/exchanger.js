@@ -100,16 +100,26 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       var chooserOnUser = randoService.findRandoByRandoId(chooser.randoId, user.out);
       if (chooserOnUser) {
         chooserOnUser.chosenRandoId = rando.randoId;
-        db.user.updateOutRandoProperties(user.email, chooser.randoId, {chosenRandoId: rando.randoId});
-
         user.in.push(rando);
-        db.user.addRandoToUserInByEmail(user.email, rando, done);
+        async.parallel([
+          (updateDone) => {
+            db.user.updateOutRandoProperties(user.email, chooser.randoId, {chosenRandoId: rando.randoId}, updateDone);
+          },
+          (updateDone) => {
+            db.user.addRandoToUserInByEmail(user.email, rando, updateDone);
+          }
+        ], (err) => {
+          if (err) {
+            logger.err("[exchanger.putRandoToUserAsync.putRandoToUserIn]", "Cannot add rando to user in by email or update out rando properties because:", err);
+            return done(err);
+          }
+          return done(null, user);
+        });
       } else {
-        logger.err("INCORRECT STATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        done("incorrect state");
+        var err = new Error("Incorrect state: chooserOnUser not found");
+        logger.err("[exchanger.putRandoToUserAsync.putRandoToUserIn]", "Cannot putRandoToUserIn, because:", err);
+        return done(err);
       }
-
-      done(null, user);
     },
     function sendNotificationToUser (user, done) {
       logger.trace("[exchanger.sendNotificationToUser]", "Send message with ranodId: ", rando.randoId ," to user:", user.email);
@@ -134,13 +144,19 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
           strangerRandoId: chooser.randoId,
           strangerMapURL: chooser.mapURL,
           strangerMapSizeURL: chooser.mapSizeURL
+        }, (err) => {
+          if (err) {
+            logger.err("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Cannot updateRandoInStrangerOut because:", err);
+            return done(err);
+          }
+          logger.data("Rando", rando.randoId, "by", user.email, " ---landed--to--user--->", chooser.email, "because his rando", chooser.randoId); 
+          return done(null, user, updatedRando);
         });
 
-        logger.data("Rando", rando.randoId, "by", user.email, " ---landed--to--user--->", chooser.email, "because his rando", chooser.randoId); 
-        done(null, user, updatedRando);
       } else {
-        logger.err("INCORRECT STATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        done("incorrect state");
+        var err = new Error("Incorrect state: updatedRando not found");
+        logger.err("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Cannot putRandoToUserIn, because:", err);
+        return done(err);
       }
     },
     function sendNotificationToStranger (user, updatedRando, done) {
@@ -172,7 +188,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
         updateChooser (updateDone) {
           db.rando.updateRandoProperties(chooser.randoId, {chosenRandoId: rando.randoId}, updateDone);
         }
-      }, function (err) {
+      }, (err) => {
         logger.trace("[exchanger.putRandoToUserAsync.updateRandoBucket]", "rando: ", rando.randoId, " and chooser: ", chooser.randoId, " was updated in db.randos");
         done();
       });
@@ -181,11 +197,11 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       logger.trace("[exchanger.putRandoToUserAsync.cleanup]", "Cleanup start");
 
       var fullyExchangedRandos = randoService.findFullyExchangedRandos(randos);
-      var randoIds = fullyExchangedRandos.map(r => {return r.randoId});
+      var randoIds = fullyExchangedRandos.map(r => r.randoId);
 
       randoService.removeByRandoIds(randoIds, global.randos);
       randoService.syncUsersWithRandos(global.users, global.randos);
-      
+
       db.rando.removeByRandoIds(randoIds, done);
     }
   ], function (err) {
