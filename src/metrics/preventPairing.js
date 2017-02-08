@@ -15,14 +15,9 @@ module.exports = {
 
 function getStrangerEmailByStrangerRandoId(strangerRandoId, randos) {
   var strangerEmail = "";
-  var strangerRandos = randos.filter(rando => {return rando.randoId === strangerRandoId});
-  if (strangerRandos.length > 0) {
-    strangerEmail = strangerRandos[0].email;
-  } else {
-    var strangerGlobalRandos = global.strangerEmailsAndRandoIds.filter(stranger => {return stranger.randoId === strangerRandoId});
-    if (strangerGlobalRandos.length > 0) {
-      strangerEmail = strangerGlobalRandos[0].email;
-    }
+  var strangers = global.strangerEmailsAndRandoIds.filter(stranger => {return stranger.randoId === strangerRandoId});
+  if (strangers.length > 0) {
+    strangerEmail = strangers[0].email;
   }
   return strangerEmail;
 }
