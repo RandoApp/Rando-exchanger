@@ -1,13 +1,13 @@
 var db = require("randoDB");
 var config = require("config");
-var logger = require("./log/logger");
 var async = require("async");
-var metrics = require("./metrics");
-var printService = require("./service/printService");
-var randoService = require("./service/randoService");
-var dbService = require("./service/dbService");
-var firebaseService = require("./service/firebaseService");
-var consistencyService = require("./service/consistencyService");
+var logger = require("./src/log/logger");
+var metrics = require("./src/metrics");
+var printService = require("./src/service/printService");
+var randoService = require("./src/service/randoService");
+var dbService = require("./src/service/dbService");
+var firebaseService = require("./src/service/firebaseService");
+var consistencyService = require("./src/service/consistencyService");
 
 global.users = {};
 global.randos = [];
@@ -265,4 +265,4 @@ function main () {
   });
 }
 
-module.exports = main;
+main();
