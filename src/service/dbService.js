@@ -41,7 +41,7 @@ module.exports = {
       return callback();
     }
 
-    db.user.getLightUserWithInAndOutByEmail(rando.email, function (err, user) {
+    db.user.getAllLightInAndOutRandosByEmailForExchange(rando.email, function (err, user) {
       if (err) {
         logger.debug("[exchanger.fetchUser] ", "Error on fetchUser:", err);
         return callback(err);
