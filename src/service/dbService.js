@@ -43,7 +43,6 @@ module.exports = {
       }
 
       callback(null, rando.email);
-
     });
   },
   fetchUser (rando, users, callback) {

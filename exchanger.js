@@ -259,7 +259,7 @@ function main () {
           global.strangerEmailsAndRandoIds.push({randoId: strangerRandoId, email: strangerRandos[0].email});
           return eachDone();
         } else {
-          dbService.getEmailByRandoId(strangerRandoId, (err, email) {
+          dbService.getEmailByRandoId(strangerRandoId, (err, email) => {
             if (email) {
               global.strangerEmailsAndRandoIds.push({randoId: strangerRandoId, email});
             }
