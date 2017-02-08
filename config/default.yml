@@ -9,6 +9,7 @@ app:
     metrics:
         timeWaitingCorrection: 10 #10 points per hour
         increaseUserEntropy: -60
+        MIN_MARK: -999999999
     log:
         folder: logs
         file: rando-exchanger.log

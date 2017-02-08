@@ -11,6 +11,7 @@ var consistencyService = require("./src/service/consistencyService");
 
 global.users = {};
 global.randos = [];
+global.strangerEmailsAndRandoIds = [];
 
 function exchangeRandos (callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
@@ -249,6 +250,23 @@ function main () {
         global.users = users;
         done();
       });
+    },
+    function loadStrangerRandosIfNeeded (done) {
+      var randosWithStrangerRandoId = global.randos.map(rando => rando.strangerRandoId).filter(rando => rando);
+      async.eachLimit(randosWithStrangerRandoId, 1, (strangerRandoId, eachDone) => {
+        var strangerRandos = global.randos.filter(globalRando => {return globalRando.randoId === strangerRandoId});
+        if (strangerRandos.length > 0) {
+          global.strangerEmailsAndRandoIds.push({randoId: strangerRandoId, email: strangerRandos[0].email});
+          return eachDone();
+        } else {
+          dbService.getEmailByRandoId(strangerRandoId, (err, email) {
+            if (email) {
+              global.strangerEmailsAndRandoIds.push({randoId: strangerRandoId, email});
+            }
+            return eachDone();
+          });
+        }
+      }, done);
     },
     function exchange (done) {
       exchangeRandos(done);

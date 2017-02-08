@@ -35,13 +35,24 @@ module.exports = {
       callback(err, users);
     });
   },
+  getEmailByRandoId(randoId, callback) {
+    db.user.getLightRandoByRandoId((err, rando) => {
+      if (err) {
+        logger.debug("[exchanger.getEmailByRandoId] ", "Error on getLightRandoByRandoId:", err);
+        return callback(err);
+      }
+
+      callback(null, rando.email);
+
+    });
+  },
   fetchUser (rando, users, callback) {
     if (users[rando.email]) {
       logger.debug("[exchanger.fetchUser]", "User already in cache");
       return callback();
     }
 
-    db.user.getAllLightInAndOutRandosByEmailForExchange(rando.email, function (err, user) {
+    db.user.getLightUserWithInAndOutByEmail(rando.email, function (err, user) {
       if (err) {
         logger.debug("[exchanger.fetchUser] ", "Error on fetchUser:", err);
         return callback(err);
