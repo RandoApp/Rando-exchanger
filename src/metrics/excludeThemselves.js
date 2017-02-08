@@ -1,3 +1,5 @@
+var config = require("config");
+
 module.exports = {
   name: module.id.match(/^.*\/([^\\\/]+).js$/)[1],
   calculate (randoChooser, randoToMark, randos) { 
