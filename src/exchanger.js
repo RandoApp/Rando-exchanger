@@ -11,35 +11,17 @@ var consistencyService = require("./service/consistencyService");
 
 global.users = {};
 global.randos = [];
-global.exchangeLog = {
-  metrics: []
-};
 
 function exchangeRandos (callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
 
   var choosers = randoService.findAllChoosers(global.randos);
 
-  global.exchangeLog.choosers = choosers.map(rando => {
-    return {
-      email: rando.email,
-      randoId: rando.randoId,
-      creation: rando.creation
-    };
-  });
-
-  global.exchangeLog.randos = global.randos.map(rando => {
-    return {
-      email: rando.email,
-      randoId: rando.randoId,
-      chosenRandoId: rando.chosenRandoId,
-      creation: rando.creation
-    };
-  });
-
   printService.printChooser(choosers);
 
   async.eachSeries(choosers, function (chooser, done) {
+    initExchangerLog(choosers);
+
     //chooser is rando that will search other rando and put it to rando.user.in
     logger.debug("[exchanger.exchangeRandos]", "Chooser is:", chooser.randoId, "of [", chooser.email, "]");
 
@@ -211,6 +193,29 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       logger.warn("[exchanger.putRandoToUserAsync.waterfall]", "Done without errors");
     }
     callback(err);
+  });
+}
+
+function initExchangerLog (choosers) {
+  global.exchangeLog = {
+    metrics: []
+  };
+
+  global.exchangeLog.choosers = choosers.map(rando => {
+    return {
+      email: rando.email,
+      randoId: rando.randoId,
+      creation: rando.creation
+    };
+  });
+
+  global.exchangeLog.randos = global.randos.map(rando => {
+    return {
+      email: rando.email,
+      randoId: rando.randoId,
+      chosenRandoId: rando.chosenRandoId,
+      creation: rando.creation
+    };
   });
 }
 
