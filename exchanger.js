@@ -11,7 +11,7 @@ var consistencyService = require("./src/service/consistencyService");
 
 global.users = {};
 global.randos = [];
-global.strangerEmailsAndRandoIds = [];
+global.strangers = [];
 
 function exchangeRandos (callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
@@ -122,6 +122,8 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
         updatedRando.strangerRandoId = chooser.randoId;
         updatedRando.strangerMapURL = chooser.mapURL;
         updatedRando.strangerMapSizeURL = chooser.mapSizeURL;
+
+        global.strangers.push({email: updatedRando.email, randoId: updatedRando.randoId});
 
         db.user.updateOutRandoProperties(user.email, rando.randoId, {
           strangerRandoId: chooser.randoId,
@@ -252,16 +254,16 @@ function main () {
       });
     },
     function loadStrangerRandosIfNeeded (done) {
-      var randosWithStrangerRandoId = global.randos.map(rando => rando.strangerRandoId).filter(rando => rando);
+      var randosWithStrangerRandoId = global.randos.map(rando => rando.strangerRandoId).filter(id => id);
       async.eachLimit(randosWithStrangerRandoId, 1, (strangerRandoId, eachDone) => {
         var strangerRandos = global.randos.filter(globalRando => {return globalRando.randoId === strangerRandoId});
         if (strangerRandos.length > 0) {
-          global.strangerEmailsAndRandoIds.push({randoId: strangerRandoId, email: strangerRandos[0].email});
+          global.strangers.push({email: strangerRandos[0].email, randoId: strangerRandoId});
           return eachDone();
         } else {
           dbService.getEmailByRandoId(strangerRandoId, (err, email) => {
             if (email) {
-              global.strangerEmailsAndRandoIds.push({randoId: strangerRandoId, email});
+              global.strangers.push({email, randoId: strangerRandoId});
             }
             return eachDone();
           });

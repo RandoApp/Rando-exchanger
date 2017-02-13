@@ -15,7 +15,7 @@ module.exports = {
 
 function getStrangerEmailByStrangerRandoId(strangerRandoId, randos) {
   var strangerEmail = "";
-  var strangers = global.strangerEmailsAndRandoIds.filter(stranger => {return stranger.randoId === strangerRandoId});
+  var strangers = global.strangers.filter(stranger => {return stranger.randoId === strangerRandoId});
   if (strangers.length > 0) {
     strangerEmail = strangers[0].email;
   }
