@@ -16,6 +16,9 @@ function exchangeRandos (callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
 
   var choosers = randoService.findAllChoosers(global.randos);
+  logger.debug("[exchanger.exchangeRandos] Before sort choosers:", choosers.map((chooser) => {return {email: chooser.email, mark: chooser.mark}; }));
+  choosers = randoService.sortChoosersByMetrics(choosers);
+  logger.debug("[exchanger.exchangeRandos] After sort choosers:", choosers.map((chooser) => {return {email: chooser.email, mark: chooser.mark}; }));
 
   printService.printChooser(choosers);
 
@@ -45,7 +48,6 @@ function exchangeRandos (callback) {
     global.exchangeLog.chooserId = chooser.randoId;
     global.exchangeLog.choosenId = bestRando.randoId;
     
-
     logger.trace("[exchanger.exchangeRandos]", "Trying put bestRando", bestRando.randoId ,"to user", chooser.email);
     putRandoToUserAsync(chooser, bestRando, global.randos, done);
 
