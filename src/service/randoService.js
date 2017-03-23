@@ -17,6 +17,7 @@ module.exports = {
     return choosers;
   },
   sortChoosersByMetrics (choosers) {
+    logger.trace("[randoService.sortChoosersByMetrics]");
     return chooserMetrics.calculate(choosers).sort((chooser1, chooser2) => {return chooser1.mark - chooser2.mark});
   },
   isRandoWasChooser (rando) {

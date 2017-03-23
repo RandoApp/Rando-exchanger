@@ -16,7 +16,9 @@ function exchangeRandos (callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
 
   var choosers = randoService.findAllChoosers(global.randos);
+  logger.debug("[exchanger.exchangeRandos] Before sort choosers:", choosers);
   choosers = randoService.sortChoosersByMetrics(choosers);
+  logger.debug("[exchanger.exchangeRandos] After sort choosers:", choosers);
 
   printService.printChooser(choosers);
 
