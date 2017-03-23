@@ -12,7 +12,7 @@ module.exports = {
 
     for (var i = 0; i < choosers.length; i++) {
       for (var j = 0; j < this.metrics.length; j++) {
-        choosers[i].mark += this.metrics[j].calculate(chooser);
+        choosers[i].mark += this.metrics[j].calculate(choosers[i]);
       }
     }
     return choosers;
