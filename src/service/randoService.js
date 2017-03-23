@@ -1,5 +1,6 @@
 var logger = require("../log/logger");
 var config = require("config");
+var chooserMetrics = require("../chooserMetrics/chooserMertics");
 
 module.exports = {
   findAllChoosers (randos) {
@@ -14,6 +15,9 @@ module.exports = {
     }
 
     return choosers;
+  },
+  sortChoosersByMetrics (choosers) {
+    return chooserMetrics.calculate(choosers).sort((chooser1, chooser2) => {return chooser1.mark - chooser2.mark});
   },
   isRandoWasChooser (rando) {
     logger.trace("[randoService.putRandoToUserAsync.cleanBucket.isRandoWasChooser]", "Process rando ", rando.randoId, " for ", randos.length, " randos");

@@ -16,6 +16,7 @@ function exchangeRandos (callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
 
   var choosers = randoService.findAllChoosers(global.randos);
+  choosers = randoService.sortChoosersByMetrics(choosers);
 
   printService.printChooser(choosers);
 
@@ -45,7 +46,6 @@ function exchangeRandos (callback) {
     global.exchangeLog.chooserId = chooser.randoId;
     global.exchangeLog.choosenId = bestRando.randoId;
     
-
     logger.trace("[exchanger.exchangeRandos]", "Trying put bestRando", bestRando.randoId ,"to user", chooser.email);
     putRandoToUserAsync(chooser, bestRando, global.randos, done);
 
