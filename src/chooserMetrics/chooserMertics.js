@@ -1,4 +1,4 @@
-var logger = require("./log/logger");
+var logger = require("../log/logger");
 
 module.exports = {
   metrics: [
