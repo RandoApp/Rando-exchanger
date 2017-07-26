@@ -251,9 +251,9 @@ function main () {
       });
     },
     function loadStrangerRandosIfNeeded (done) {
-      let randosWithStrangerRandoId = global.randos.map(rando => rando.strangerRandoId).filter(rando => rando);
+      let randosWithStrangerRandoId = global.randos.map(rando => rando.strangerRandoId).filter(strangerRandoId => strangerRandoId);
       async.eachLimit(randosWithStrangerRandoId, 1, (strangerRandoId, eachDone) => {
-        var strangerRandos = global.randos.filter(globalRando => globalRando.randoId === strangerRandoId);
+        let strangerRandos = global.randos.filter(globalRando => globalRando.randoId === strangerRandoId);
         if (strangerRandos.length > 0) {
           global.strangerEmailsAndRandoIds.push({randoId: strangerRandoId, email: strangerRandos[0].email});
           return eachDone();
