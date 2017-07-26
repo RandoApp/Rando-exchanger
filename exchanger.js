@@ -39,13 +39,12 @@ function exchangeRandos (callback) {
 
     if (bestRando.mark < 0) {
       logger.trace("[exchanger.exchangeRandos]", "Continue, because bestRando.mark < 0");
-      done();
-      return;
+      return done();
     }
 
     global.exchangeLog.chooserId = chooser.randoId;
     global.exchangeLog.choosenId = bestRando.randoId;
-    
+
 
     logger.trace("[exchanger.exchangeRandos]", "Trying put bestRando", bestRando.randoId ,"to user", chooser.email);
     putRandoToUserAsync(chooser, bestRando, global.randos, done);
@@ -79,7 +78,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       var user = global.users[chooser.email];
       logger.trace("[exchanger.putRandoToUserAsync.putRandoToUserIn]", "Put rando to user.in");
       logger.data("Rando", rando.randoId, "by", rando.email, "----in--->", user.email);
-      
+
       var chooserOnUser = randoService.findRandoByRandoId(chooser.randoId, user.out);
       if (chooserOnUser) {
         chooserOnUser.chosenRandoId = rando.randoId;
@@ -132,7 +131,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
             logger.err("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Cannot updateRandoInStrangerOut because:", err);
             return done(err);
           }
-          logger.data("Rando", rando.randoId, "by", user.email, " ---landed--to--user--->", chooser.email, "because his rando", chooser.randoId); 
+          logger.data("Rando", rando.randoId, "by", user.email, " ---landed--to--user--->", chooser.email, "because his rando", chooser.randoId);
           return done(null, user, updatedRando);
         });
 
@@ -284,3 +283,5 @@ function main () {
 }
 
 main();
+
+module.exports = main;

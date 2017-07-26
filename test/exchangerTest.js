@@ -2,7 +2,7 @@ var should = require("should");
 var sinon = require("sinon");
 var db = require("randoDB");
 var mockUtil = require("./mockUtil");
-var exchanger = require("../src/exchanger");
+var exchanger = require("../exchanger");
 
 describe("Exchanger.", function () {
   describe("Main.", function () {
@@ -15,13 +15,13 @@ describe("Exchanger.", function () {
       callback(null, [
         {email: "user1@mail.com", creation: 2014, randoId: 1},
         {email: "user2@mail.com", creation: 2016, randoId: 2},
-      ]); 
+      ]);
     });
 
     sinon.stub(db.rando, "getByRandoId", function (randoId, callback) {
       callback(null, {
           email: "user" + randoId + "@mail.com",
-          creation: 2015, 
+          creation: 2015,
           randoId
         });
     });
