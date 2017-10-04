@@ -1,6 +1,6 @@
 app:
     detectedTagMap:
-        unwanted: 
+        unwanted:
             - monocolor
     tags:
         nude: copyToAnomaly
@@ -22,4 +22,7 @@ exch:
 firebase:
     key: STUB_SERVER_API_KEY
 db:
-    url: mongodb://localhost/rando
+    url: mongodb://localhost:27017/rando
+test:
+    db:
+        url: mongodb://localhost:27017/rando-exchanger-integration-tests

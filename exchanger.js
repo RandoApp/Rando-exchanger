@@ -219,13 +219,13 @@ function initExchangerLog (choosers) {
   });
 }
 
-function main () {
+function main (callback) {
   var start = Date.now();
   logger.info("---> Exchanger start: " + new Date());
   async.waterfall([
     function init (done) {
-      db.connect(config.db.url);
-      done();
+      logger.info("Connecting to db: " + config.db.url);
+      db.connect(config.db.url, done);
     },
     function loadRandos (done) {
       dbService.fetchRandos(function (err, randos) {
@@ -275,13 +275,11 @@ function main () {
       logger.info("===> Exchanger finish with error:  ", err);
     }
 
-    db.disconnect();
     var end = Date.now();
     var timeSpent = (end-start) / 1000;
     logger.info("===> Exchanger finish at " + new Date(), " Time spent:", timeSpent, "sec");
+    db.disconnect(callback);
   });
 }
-
-main();
 
 module.exports = main;
