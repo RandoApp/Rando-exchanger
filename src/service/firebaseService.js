@@ -41,6 +41,7 @@ module.exports = {
       "Content-Type": "application/json"
     })
     .send(buildMessage(message, deviceFirebaseId))
+    .timeout(30000)
     .end(function (response) {
       logger.trace("[firebase] response body:", response.body);
       callback(null, response.body);
