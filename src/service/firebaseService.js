@@ -41,7 +41,7 @@ module.exports = {
       "Content-Type": "application/json"
     })
     .send(buildMessage(message, deviceFirebaseId))
-    .timeout(30000)
+    .timeout(config.firebase.timeout)
     .end(function (response) {
       logger.trace("[firebase] response body:", response.body);
       callback(null, response.body);
@@ -50,7 +50,7 @@ module.exports = {
   sendMessageToDevices (message, deviceFirebaseIds, callback) {
     logger.trace("[firebase.sendMessageToDevices]", "Start sending messages");
     var self = this;
-    async.eachLimit(deviceFirebaseIds, 1000, (firebaseId, done) => {
+    async.eachLimit(deviceFirebaseIds, config.firebase.parallelMessagesLimit, (firebaseId, done) => {
       self.sendMessageToSingleDevice(message, firebaseId, done);
     }, callback);
   },
