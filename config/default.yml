@@ -1,6 +1,6 @@
 app:
     detectedTagMap:
-        unwanted: 
+        unwanted:
             - monocolor
     tags:
         nude: copyToAnomaly
@@ -17,5 +17,7 @@ exch:
     fetchRandosNumber: 1000
 firebase:
     key: STUB_SERVER_API_KEY
+    timeout: 3000
+    parallelMessagesLimit: 2
 db:
     url: mongodb://localhost/rando
