@@ -1,4 +1,4 @@
-фиvar logger = require("../log/logger");
+var logger = require("../log/logger");
 var config = require("config");
 
 module.exports = {
