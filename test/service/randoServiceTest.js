@@ -106,7 +106,7 @@ describe("RandoService.", function () {
         { randoId: 3, chosenRandoId: 2, strangerRandoId: 1 }
       ];
 
-      randoService.isRandoFullyExchanged(randos).should.be.empty();
+      randoService.findFullyExchangedRandos(randos).should.have.length(3);
       done();
     });
   });

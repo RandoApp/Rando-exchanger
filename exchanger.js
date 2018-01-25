@@ -228,7 +228,7 @@ function main (callback) {
       db.connect(config.db.url, done);
     },
     function loadRandos (done) {
-      dbService.fetchRandos(function (err, randos) {
+      dbService.fetchRandos((err, randos) => {
         if (err && randos.length <= 1) {
           return done("Error when fetch ALL randos");
         }

@@ -58,6 +58,6 @@ describe("E2E.", function() {
           db.user.removeAll(testDone);
         });
       });
-    }).timeout(8000);
+    });
   });
 });
