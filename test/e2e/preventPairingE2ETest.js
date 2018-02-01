@@ -2,7 +2,7 @@ const config = require("config");
 const async = require("async");
 const should = require("should");
 const sinon = require("sinon");
-const db = require("randoDB");
+const db = require("@rando4.me/db");
 const exchanger = require("../../exchanger");
 
 describe("E2E.", function() {

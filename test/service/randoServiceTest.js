@@ -1,6 +1,6 @@
 var should = require("should");
 var sinon = require("sinon");
-var db = require("randoDB");
+var db = require("@rando4.me/db");
 var randoService = require("../../src/service/randoService");
 
 describe("RandoService.", function () {

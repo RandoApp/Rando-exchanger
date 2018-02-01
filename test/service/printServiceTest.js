@@ -1,7 +1,7 @@
 var firebase = require("unirest");
 var should = require("should");
 var sinon = require("sinon");
-var db = require("randoDB");
+var db = require("@rando4.me/db");
 var mockUtil = require("../mockUtil");
 var printService = require("../../src/service/printService");
 var logger = require("../../src/log/logger");
@@ -28,7 +28,7 @@ describe("PrintService.", function () {
           { chooserId: 4, chooserEmail: "user4@mail.com" }
         ]);
       });
-      
+
       printService.printChooser(choosers);
 
       done();
@@ -39,7 +39,7 @@ describe("PrintService.", function () {
       sinon.stub(logger, "info", function (msg, printableChoosers) {
         printableChoosers.should.be.empty();
       });
-      
+
       printService.printChooser(null);
 
       done();
@@ -50,7 +50,7 @@ describe("PrintService.", function () {
       sinon.stub(logger, "info", function (msg, printableChoosers) {
         printableChoosers.should.be.empty();
       });
-      
+
       printService.printChooser([]);
 
       done();
@@ -91,7 +91,7 @@ describe("PrintService.", function () {
         choserRandoId.should.be.eql(777);
         metrics.should.be.empty();
       });
-      
+
       printService.printMetrics(null, {randoId: 777});
 
       done();
@@ -108,7 +108,7 @@ describe("PrintService.", function () {
       sinon.stub(logger, "info", function (msg) {
         msg.should.be.eql("[printUtil.printMetrics] Metrics[chooser EMPTY]!!!");
       });
-      
+
       printService.printMetrics(randos);
 
       done();

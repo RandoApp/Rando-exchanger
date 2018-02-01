@@ -1,7 +1,7 @@
 var firebase = require("unirest");
 var should = require("should");
 var sinon = require("sinon");
-var db = require("randoDB");
+var db = require("@rando4.me/db");
 var mockUtil = require("../mockUtil");
 var firebaseService = require("../../src/service/firebaseService");
 
@@ -17,13 +17,13 @@ describe("FirebaseService.", function () {
           { instanceId: 4, active: true }
         ]
       };
-      
+
       var expected = [ 2, 4];
 
       var ids = firebaseService.findActiveFirabseIds(user);
 
       expected.should.be.eql(ids);
-      
+
       done();
     });
 
@@ -44,10 +44,10 @@ describe("FirebaseService.", function () {
           { instanceId: 4, active: false }
         ]
       };
-      
+
 
       firebaseService.findActiveFirabseIds(user).should.be.empty();
-      
+
       done();
     });
   });

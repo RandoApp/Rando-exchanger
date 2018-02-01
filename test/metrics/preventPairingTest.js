@@ -1,6 +1,6 @@
 const should = require("should");
 const sinon = require("sinon");
-const db = require("randoDB");
+const db = require("@rando4.me/db");
 const metric = require("../../src/metrics/preventPairing");
 const config = require("config");
 

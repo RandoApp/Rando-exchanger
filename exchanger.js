@@ -1,4 +1,4 @@
-var db = require("randoDB");
+var db = require("@rando4.me/db");
 var config = require("config");
 var async = require("async");
 var logger = require("./src/log/logger");
