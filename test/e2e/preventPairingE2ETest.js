@@ -12,6 +12,8 @@ describe("E2E.", function() {
     // 2. All 3 randos in a list for exchange
     // 3. Exchanger should be max of entropy: rando1 -> rando2; rando2 -> rando3; rando3 -> rando1;
     it("Should exchange 3 randos without pairing", (done) => {
+      this.timeout(10000);
+
       async.waterfall([
         (waterfallDone) => {
           db.connect(config.test.db.url, waterfallDone);
