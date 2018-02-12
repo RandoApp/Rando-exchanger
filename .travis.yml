@@ -4,7 +4,8 @@ node_js:
   - node
 git:
   depth: 3
-
+services:
+  - mongodb
 before_script:
   - sleep 15
 after_script:
