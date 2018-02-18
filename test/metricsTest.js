@@ -1,4 +1,3 @@
-require('why-is-node-running')()
 var should = require("should");
 var sinon = require("sinon");
 var metrics = require("../src/metrics");
