@@ -49,7 +49,7 @@ describe("E2E.", function() {
         },
         (err, waterfallDone) => {
           db.disconnect(waterfallDone);
-          setTimeout(function () {
+          setInterval(function () {
             deblog() // logs out active handles that are keeping node running
             }, 10000);
         },
