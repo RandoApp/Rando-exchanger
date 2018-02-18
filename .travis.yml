@@ -7,7 +7,7 @@ git:
 services:
   - mongodb
 before_script:
-  - sleep 15
+  - sleep 10
 after_script:
   - npm run-script coveralls
   
