@@ -1,3 +1,4 @@
+require('why-is-node-running')()
 const should = require("should");
 const sinon = require("sinon");
 const db = require("@rando4.me/db");

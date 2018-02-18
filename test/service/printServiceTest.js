@@ -1,3 +1,4 @@
+require('why-is-node-running')()
 var firebase = require("unirest");
 var should = require("should");
 var sinon = require("sinon");
