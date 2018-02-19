@@ -1,4 +1,3 @@
-const deblog = require('why-is-node-running');
 const config = require("config");
 const async = require("async");
 const should = require("should");
@@ -49,9 +48,6 @@ describe("E2E.", function() {
         },
         (err, waterfallDone) => {
           db.disconnect(waterfallDone);
-          setInterval(function () {
-            deblog() // logs out active handles that are keeping node running
-            }, 10000);
         },
         (waterfallDone) => {
           config.db.url = config.test.db.url;
