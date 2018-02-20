@@ -27,7 +27,7 @@ describe("PreventPairing.", function () {
           email: "stranger2@rando4.me"
       }];
 
-      global.users = {}
+      global.users = {};
 
       var randoToMark = {
         randoId: 2,
