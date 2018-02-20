@@ -60,7 +60,6 @@ describe("E2E.", function() {
         }
       ], (err) => {
         let testDone = done;
-        console.log("YYY");
         db.connect(config.test.db.url, (err) => {
           db.user.removeAll(testDone);
         });
