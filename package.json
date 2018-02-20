@@ -22,7 +22,8 @@
     "should": "13.2.1",
     "sinon": "1.17.4",
     "istanbul": "0.4.5",
-    "coveralls": "3.0.0"
+    "coveralls": "3.0.0",
+    "why-is-node-running": "2.0.0"
   },
   "scripts": {
     "test": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- --recursive --exit --timeout 10000",
