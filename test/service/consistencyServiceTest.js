@@ -1,6 +1,6 @@
 var should = require("should");
 var sinon = require("sinon");
-var db = require("randoDB");
+var db = require("@rando4.me/db");
 var mockUtil = require("../mockUtil");
 var consistencyService = require("../../src/service/consistencyService");
 

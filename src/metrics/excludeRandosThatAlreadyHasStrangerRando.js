@@ -1,8 +1,10 @@
+var config = require("config");
+
 module.exports = {
   name: module.id.match(/^.*\/([^\\\/]+).js$/)[1],
   calculate (randoChooser, randoToMark, randos) { 
     if (randoToMark.strangerRandoId) {
-      return Number.MIN_SAFE_INTEGER;
+      return config.app.metrics.MIN_MARK;
     }
     return 0;
   }

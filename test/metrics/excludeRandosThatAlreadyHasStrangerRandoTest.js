@@ -1,13 +1,14 @@
-var should = require("should");
-var sinon = require("sinon");
-var db = require("randoDB");
-var metric = require("../../src/metrics/excludeRandosThatAlreadyHasStrangerRando");
+const should = require("should");
+const sinon = require("sinon");
+const db = require("@rando4.me/db");
+const metric = require("../../src/metrics/excludeRandosThatAlreadyHasStrangerRando");
+const config = require("config");
 
 describe("excludeRandosThatAlreadyHasStrangerRando.", function () {
   describe("Calculation.", function () {
     it("Should return -MIN_SAFE_INTEGER when randoToMark and chooser from same user", function (done) {
       var mark = metric.calculate({}, { randoId: 2, strangerRandoId: 1 }, []);
-      mark.should.be.eql(Number.MIN_SAFE_INTEGER);
+      mark.should.be.eql(config.app.metrics.MIN_MARK);
       done();
     });
 

@@ -1,4 +1,4 @@
-var db = require("randoDB");
+var db = require("@rando4.me/db");
 var config = require("config");
 var async = require("async");
 var logger = require("./src/log/logger");
@@ -11,6 +11,7 @@ var consistencyService = require("./src/service/consistencyService");
 
 global.users = {};
 global.randos = [];
+global.strangerEmailsAndRandoIds = [];
 
 function exchangeRandos (callback) {
   logger.info("[exchanger.exchangeRandos]", "Trying exchange randos");
@@ -38,13 +39,12 @@ function exchangeRandos (callback) {
 
     if (bestRando.mark < 0) {
       logger.trace("[exchanger.exchangeRandos]", "Continue, because bestRando.mark < 0");
-      done();
-      return;
+      return done();
     }
 
     global.exchangeLog.chooserId = chooser.randoId;
     global.exchangeLog.choosenId = bestRando.randoId;
-    
+
 
     logger.trace("[exchanger.exchangeRandos]", "Trying put bestRando", bestRando.randoId ,"to user", chooser.email);
     putRandoToUserAsync(chooser, bestRando, global.randos, done);
@@ -78,7 +78,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       var user = global.users[chooser.email];
       logger.trace("[exchanger.putRandoToUserAsync.putRandoToUserIn]", "Put rando to user.in");
       logger.data("Rando", rando.randoId, "by", rando.email, "----in--->", user.email);
-      
+
       var chooserOnUser = randoService.findRandoByRandoId(chooser.randoId, user.out);
       if (chooserOnUser) {
         chooserOnUser.chosenRandoId = rando.randoId;
@@ -131,7 +131,7 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
             logger.err("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Cannot updateRandoInStrangerOut because:", err);
             return done(err);
           }
-          logger.data("Rando", rando.randoId, "by", user.email, " ---landed--to--user--->", chooser.email, "because his rando", chooser.randoId); 
+          logger.data("Rando", rando.randoId, "by", user.email, " ---landed--to--user--->", chooser.email, "because his rando", chooser.randoId);
           return done(null, user, updatedRando);
         });
 
@@ -219,16 +219,16 @@ function initExchangerLog (choosers) {
   });
 }
 
-function main () {
+function main (callback) {
   var start = Date.now();
   logger.info("---> Exchanger start: " + new Date());
   async.waterfall([
     function init (done) {
-      db.connect(config.db.url);
-      done();
+      logger.info("Connecting to db: " + config.db.url);
+      db.connect(config.db.url, done);
     },
     function loadRandos (done) {
-      dbService.fetchRandos(function (err, randos) {
+      dbService.fetchRandos((err, randos) => {
         if (err && randos.length <= 1) {
           return done("Error when fetch ALL randos");
         }
@@ -250,6 +250,23 @@ function main () {
         done();
       });
     },
+    function loadStrangerRandosIfNeeded (done) {
+      let randosWithStrangerRandoId = global.randos.map(rando => rando.strangerRandoId).filter(strangerRandoId => strangerRandoId);
+      async.eachLimit(randosWithStrangerRandoId, 1, (strangerRandoId, eachDone) => {
+        let strangerRandos = global.randos.filter(globalRando => globalRando.randoId === strangerRandoId);
+        if (strangerRandos.length > 0) {
+          global.strangerEmailsAndRandoIds.push({randoId: strangerRandoId, email: strangerRandos[0].email});
+          return eachDone();
+        } else {
+          dbService.getEmailByRandoId(strangerRandoId, (err, email) => {
+            if (email) {
+              global.strangerEmailsAndRandoIds.push({randoId: strangerRandoId, email});
+            }
+            return eachDone();
+          });
+        }
+      }, done);
+    },
     function exchange (done) {
       exchangeRandos(done);
     }
@@ -258,11 +275,11 @@ function main () {
       logger.info("===> Exchanger finish with error:  ", err);
     }
 
-    db.disconnect();
     var end = Date.now();
     var timeSpent = (end-start) / 1000;
     logger.info("===> Exchanger finish at " + new Date(), " Time spent:", timeSpent, "sec");
+    db.disconnect(callback);
   });
 }
 
-main();
+module.exports = main;

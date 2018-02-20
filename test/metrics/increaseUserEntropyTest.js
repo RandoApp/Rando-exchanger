@@ -1,9 +1,16 @@
-var should = require("should");
-var sinon = require("sinon");
-var db = require("randoDB");
-var metric = require("../../src/metrics/increaseUserEntropy");
+const should = require("should");
+const sinon = require("sinon");
+const db = require("@rando4.me/db");
+const metric = require("../../src/metrics/increaseUserEntropy");
+const config = require("config");
 
 describe("IncreaseUserEntropy.", function () {
+  before(() => {
+    global.exchangeLog = {
+      metrics: []
+    };
+  });
+
   describe("Calculation.", function () {
     it("Should return -5 for for users that already paired in the past", function (done) {
       var randoChooser = {
@@ -26,7 +33,7 @@ describe("IncreaseUserEntropy.", function () {
           }]
         }
       };
-      
+
       var randoToMark = {
         randoId: 2,
         email: "user2@mail.com",
@@ -35,8 +42,8 @@ describe("IncreaseUserEntropy.", function () {
       var randos = [];
 
       var mark = metric.calculate(randoChooser, randoToMark, randos);
-      
-      mark.should.be.eql(-100);
+
+      mark.should.be.eql(config.app.metrics.increaseUserEntropy);
       done();
     });
 
@@ -46,7 +53,7 @@ describe("IncreaseUserEntropy.", function () {
         email: "user@mail.com",
         strangerRandoId: 2
       };
-      
+
       global.users = {
         "user1@mail.com": {
           email: "user1@mail.com",
@@ -68,7 +75,7 @@ describe("IncreaseUserEntropy.", function () {
       var randos = [];
 
       var mark = metric.calculate(randoChooser, randoToMark, randos);
-      
+
       mark.should.be.eql(0);
       done();
     });

@@ -6,6 +6,10 @@ app:
         nude: copyToAnomaly
         monocolor: moveToAnomaly
     googleTestDevicesIpRegex: (^108\.177\.6\.[0-9]+$)|(^104\.196\.[0-9]+\.[0-9]+$)
+    metrics:
+        timeWaitingCorrection: 10 #10 points per hour
+        increaseUserEntropy: -60
+        MIN_MARK: -999999999
     log:
         folder: logs
         file: rando-exchanger.log
@@ -20,4 +24,7 @@ firebase:
     timeout: 3000
     parallelMessagesLimit: 2
 db:
-    url: mongodb://localhost/rando
+    url: mongodb://localhost:27017/rando
+test:
+    db:
+        url: mongodb://localhost:27017/rando-exchanger-integration-tests

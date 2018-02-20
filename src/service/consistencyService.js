@@ -2,7 +2,7 @@ var config = require("config");
 var logger = require("../log/logger");
 var async = require("async");
 var randoService = require("./randoService");
-var db = require("randoDB");
+var db = require("@rando4.me/db");
 
 var ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
 

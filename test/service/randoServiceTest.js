@@ -1,6 +1,6 @@
 var should = require("should");
 var sinon = require("sinon");
-var db = require("randoDB");
+var db = require("@rando4.me/db");
 var randoService = require("../../src/service/randoService");
 
 describe("RandoService.", function () {
@@ -12,7 +12,7 @@ describe("RandoService.", function () {
         { randoId: 3, chosenRandoId: 2, strangerRandoId: 4 },
         { randoId: 4, chosenRandoId: 3}
       ];
-      
+
       var expected = [
         { randoId: 1 },
         { randoId: 2, strangerRandoId: 3 }
@@ -21,7 +21,7 @@ describe("RandoService.", function () {
       var choosers = randoService.findAllChoosers(randos);
 
       expected.should.be.eql(choosers);
-      
+
       done();
     });
 
@@ -51,9 +51,9 @@ describe("RandoService.", function () {
         { randoId: 3, chosenRandoId: 2, strangerRandoId: 4 },
         { randoId: 4, chosenRandoId: 3 }
       ];
-      
+
       randoService.isRandoFullyExchanged({randoId: 3, strangerRandoId: 4}, randos).should.be.false;
-      
+
       done();
     });
 
@@ -89,7 +89,7 @@ describe("RandoService.", function () {
       var actual = randoService.findFullyExchangedRandos(randos);
 
       expected.should.be.eql(actual);
-      
+
       done();
     });
 
@@ -106,7 +106,7 @@ describe("RandoService.", function () {
         { randoId: 3, chosenRandoId: 2, strangerRandoId: 1 }
       ];
 
-      randoService.isRandoFullyExchanged(randos).should.be.empty();
+      randoService.findFullyExchangedRandos(randos).should.have.length(3);
       done();
     });
   });
@@ -124,7 +124,7 @@ describe("RandoService.", function () {
         mapSizeURL: {
           small: "http://rando4.me/map/small/1.png"
         },
-
+        detected: [],
         delete: 1,
         rating: 3,
         someMoreField: "12345"
@@ -140,12 +140,13 @@ describe("RandoService.", function () {
         mapURL: "http://rando4.me/map/1.png",
         mapSizeURL: {
           small: "http://rando4.me/map/small/1.png"
-        }
+        },
+        detected: []
       };
 
       var actual = randoService.buildRando(bigRando);
       expected.should.be.eql(actual);
-      
+
       done();
     });
 
@@ -193,7 +194,7 @@ describe("RandoService.", function () {
 
       var actual = randoService.buildLandedRando(bigRando);
       expected.should.be.eql(actual);
-      
+
       done();
     });
 
@@ -216,7 +217,7 @@ describe("RandoService.", function () {
       var actual = randoService.selectBestRando(randos);
       var expected = {randoId: 4, mark: 6};
       expected.should.be.eql(actual);
-      
+
       done();
     });
 
@@ -233,7 +234,7 @@ describe("RandoService.", function () {
       var actual = randoService.selectBestRando(randos);
       var expected = {randoId: 1, mark: -3};
       expected.should.be.eql(actual);
-      
+
       done();
     });
 
@@ -247,7 +248,7 @@ describe("RandoService.", function () {
       var actual = randoService.selectBestRando(randos);
       var expected = {randoId: 1, mark: 3};
       expected.should.be.eql(actual);
-      
+
       done();
     });
   });
@@ -265,10 +266,10 @@ describe("RandoService.", function () {
 
       var actual = randoService.removeByRandoId(2, randos);
       var expected = {randoId: 2};
-      
+
       expected.should.be.eql(actual);
       randos.should.have.length(4);
-      
+
       done();
     });
 
@@ -286,7 +287,7 @@ describe("RandoService.", function () {
 
       actual.should.be.empty();
       randos.should.have.length(1);
-      
+
       done();
     });
   });
@@ -303,9 +304,9 @@ describe("RandoService.", function () {
 
       var actual = randoService.findRandoByRandoId(2, randos);
       var expected = {randoId: 2};
-      
+
       expected.should.be.eql(actual);
-      
+
       done();
     });
 
@@ -322,7 +323,7 @@ describe("RandoService.", function () {
       var actual = randoService.findRandoByRandoId(2, randos);
 
       actual.should.be.empty();
-      
+
       done();
     });
   });

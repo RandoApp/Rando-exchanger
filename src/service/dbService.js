@@ -1,4 +1,4 @@
-var db = require("randoDB");
+var db = require("@rando4.me/db");
 var logger = require("../log/logger");
 var async = require("async");
 var config = require("config");
@@ -33,6 +33,16 @@ module.exports = {
         logger.warn("[dbUtil.fetchUsersForRandos]", "Each done successfully");
       }
       callback(err, users);
+    });
+  },
+  getEmailByRandoId(randoId, callback) {
+    db.user.getLightRandoByRandoId((err, rando) => {
+      if (err) {
+        logger.debug("[exchanger.getEmailByRandoId] ", "Error on getLightRandoByRandoId:", err);
+        return callback(err);
+      }
+
+      callback(null, rando.email);
     });
   },
   fetchUser (rando, users, callback) {
