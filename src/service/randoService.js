@@ -51,9 +51,10 @@ module.exports = {
     }
 
     logger.trace("[randoService.buildRando] build rando with id: ", rando.randoId);
-    
+
     return {
       creation: rando.creation,
+      exchangedDate: rando.exchangedDate ? rando.exchangedDate : 0,
       randoId: rando.randoId,
       imageURL: rando.imageURL,
       imageSizeURL: rando.imageSizeURL,

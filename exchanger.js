@@ -81,11 +81,13 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
 
       var chooserOnUser = randoService.findRandoByRandoId(chooser.randoId, user.out);
       if (chooserOnUser) {
+        const exchangedDate = Date.now();
         chooserOnUser.chosenRandoId = rando.randoId;
+        rando.exchangedDate = exchangedDate;
         user.in.push(rando);
         async.parallel([
           (updateDone) => {
-            db.user.updateOutRandoProperties(user.email, chooser.randoId, {chosenRandoId: rando.randoId}, updateDone);
+            db.user.updateOutRandoProperties(user.email, chooser.randoId, {chosenRandoId: rando.randoId, exchangedDate}, updateDone);
           },
           (updateDone) => {
             db.user.addRandoToUserInByEmail(user.email, rando, updateDone);
@@ -117,15 +119,18 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
       logger.trace("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Update rando in stranger out");
       var updatedRando = randoService.findRandoByRandoId(rando.randoId, user.out);
       if (updatedRando) {
+        const exchangedDate = Date.now();
 
         updatedRando.strangerRandoId = chooser.randoId;
         updatedRando.strangerMapURL = chooser.mapURL;
         updatedRando.strangerMapSizeURL = chooser.mapSizeURL;
+        updatedRando.exchangedDate = exchangedDate;
 
         db.user.updateOutRandoProperties(user.email, rando.randoId, {
           strangerRandoId: chooser.randoId,
           strangerMapURL: chooser.mapURL,
-          strangerMapSizeURL: chooser.mapSizeURL
+          strangerMapSizeURL: chooser.mapSizeURL,
+          exchangedDate
         }, (err) => {
           if (err) {
             logger.err("[exchanger.putRandoToUserAsync.updateRandoInStrangerOut]", "Cannot updateRandoInStrangerOut because:", err);
@@ -153,18 +158,22 @@ function putRandoToUserAsync (chooser, rando, randos, callback) {
     function updateRandoBucket (done) {
       logger.trace("[exchanger.putRandoToUserAsync.updateRandoBucket]", "updateRandoBucket rando: ", rando.randoId, ", chooser: ", chooser.randoId, " in db.randos");
 
+      const exchangedDate = Date.now();
+
       chooser.chosenRandoId = rando.randoId;
 
       rando.strangerRandoId = chooser.randoId;
       rando.strangerMapURL = chooser.mapURL;
       rando.strangerMapSizeURL = chooser.mapSizeURL;
+      rando.exchangedDate = exchangedDate;
 
       async.parallel({
         updateRando (updateDone) {
           db.rando.updateRandoProperties(rando.randoId, {
             strangerRandoId: chooser.randoId,
             strangerMapURL: chooser.mapURL,
-            strangerMapSizeURL: chooser.mapSizeURL
+            strangerMapSizeURL: chooser.mapSizeURL,
+            exchangedDate
           }, updateDone);
         },
         updateChooser (updateDone) {
